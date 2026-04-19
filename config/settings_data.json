@@ -1,10 +1,10 @@
 {
   "current": {
-    "whatsapp_number": "923001234567",
-    "phone": "+92 300 1234567",
+    "whatsapp_number": "923113638999",
+    "phone": "+92 311 3638999",
     "email": "hello@zarshah.pk",
-    "instagram_url": "https://instagram.com/zarshah",
-    "facebook_url": "https://facebook.com/zarshah",
+    "instagram_url": "https://www.instagram.com/zarshahofficial",
+    "facebook_url": "https://www.facebook.com/share/1B3J5mLPyw/",
     "sections": {
       "navbar": { "type": "navbar" },
       "announcement-bar": { "type": "announcement-bar" },
@@ -16,7 +16,7 @@
   },
   "presets": {
     "Default": {
-      "whatsapp_number": "923001234567"
+      "whatsapp_number": "923113638999"
     }
   }
 }

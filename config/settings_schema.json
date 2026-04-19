@@ -18,13 +18,13 @@
         "type": "text",
         "id": "whatsapp_number",
         "label": "WhatsApp Number (no +)",
-        "default": "923001234567"
+        "default": "923113638999"
       },
       {
         "type": "text",
         "id": "phone",
         "label": "Phone",
-        "default": "+92 300 1234567"
+        "default": "+92 311 3638999"
       },
       {
         "type": "text",
