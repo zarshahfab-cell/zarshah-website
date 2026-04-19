@@ -1,0 +1,30 @@
+# OS
+.DS_Store
+Thumbs.db
+.Spotlight-V100
+.Trashes
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Node (if added later)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Claude local config
+.claude/
+
+# Environment
+.env
+.env.local
+
+# Temporary
+*.tmp
+*.bak

@@ -1,0 +1,22 @@
+{
+  "current": {
+    "whatsapp_number": "923001234567",
+    "phone": "+92 300 1234567",
+    "email": "hello@zarshah.pk",
+    "instagram_url": "https://instagram.com/zarshah",
+    "facebook_url": "https://facebook.com/zarshah",
+    "sections": {
+      "navbar": { "type": "navbar" },
+      "announcement-bar": { "type": "announcement-bar" },
+      "hero": { "type": "hero" },
+      "featured-collection": { "type": "featured-collection", "settings": { "heading": "Premium Collection", "product_limit": 6 } },
+      "footer": { "type": "footer" },
+      "social-floats": { "type": "social-floats" }
+    }
+  },
+  "presets": {
+    "Default": {
+      "whatsapp_number": "923001234567"
+    }
+  }
+}

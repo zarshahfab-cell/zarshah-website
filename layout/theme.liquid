@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="{{ request.locale.iso_code | default: 'en' }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0D1B2A">
+    <link rel="canonical" href="{{ canonical_url }}">
+
+    <title>
+        {%- if page_title == shop.name -%}
+            {{ shop.name }}{%- if shop.description != blank %} &mdash; {{ shop.description | escape }}{%- endif -%}
+        {%- else -%}
+            {{ page_title }} | {{ shop.name }}
+        {%- endif -%}
+    </title>
+
+    {%- if page_description -%}
+    <meta name="description" content="{{ page_description | escape }}">
+    {%- endif -%}
+
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ 'top-web-image.png' | asset_url }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ 'top-web-image.png' | asset_url }}">
+    <link rel="shortcut icon" href="{{ 'top-web-image.png' | asset_url }}">
+
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&family=Bebas+Neue&family=Noto+Nastaliq+Urdu:wght@400;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+
+    {{ 'theme.css' | asset_url | stylesheet_tag }}
+
+    <script>window.routes = { cart_add_url: '{{ routes.cart_add_url }}', cart_change_url: '{{ routes.cart_change_url }}', cart_url: '{{ routes.cart_url }}' };</script>
+
+    {{ content_for_header }}
+</head>
+<body>
+
+<!-- Splash Screen (only on first visit per session, and only on homepage) -->
+{% if template == 'index' %}
+<div class="splash-screen" id="splashScreen">
+    <img src="{{ 'newlogo.png' | asset_url }}" alt="{{ shop.name }}" class="splash-logo">
+</div>
+<script>
+    (function(){
+        if (sessionStorage.getItem('zarshah-splash-shown')) {
+            var s = document.getElementById('splashScreen');
+            if (s) s.style.display = 'none';
+        } else {
+            sessionStorage.setItem('zarshah-splash-shown', '1');
+        }
+    })();
+</script>
+{% endif %}
+
+<!-- Theme Toggle -->
+<div class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+    <span class="theme-toggle-icon" id="themeIcon">&#127769;</span>
+    <span class="theme-toggle-label" id="themeLabel">LIGHT</span>
+    <div class="theme-toggle-track">
+        <div class="theme-toggle-thumb"></div>
+    </div>
+</div>
+
+<!-- Background overlay -->
+<div class="bg-overlay" style="position: fixed; inset: 0; background: radial-gradient(ellipse at center, rgba(13, 27, 42, 0.75) 0%, rgba(13, 27, 42, 0.92) 70%, rgba(5, 12, 20, 0.97) 100%); z-index: 0; pointer-events: none;"></div>
+
+<div style="position: relative; z-index: 1; padding-top: 110px;">
+
+<!-- Scroll Progress Bar -->
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<!-- Cursor Trail Dots -->
+<div class="cursor-dot" id="cursorDot1"></div>
+<div class="cursor-dot" id="cursorDot2"></div>
+<div class="cursor-dot" id="cursorDot3"></div>
+<div class="cursor-dot" id="cursorDot4"></div>
+<div class="cursor-dot" id="cursorDot5"></div>
+
+{% section 'navbar' %}
+{% section 'announcement-bar' %}
+
+<main role="main">
+    {{ content_for_layout }}
+</main>
+
+{% section 'footer' %}
+
+</div>
+
+{% section 'social-floats' %}
+
+<script src="{{ 'theme.js' | asset_url }}" defer></script>
+
+</body>
+</html>

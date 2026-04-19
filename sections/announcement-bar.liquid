@@ -1,0 +1,21 @@
+<div class="announcement-bar">
+    <span>&#128293; {{ section.settings.prefix | default: 'SALE ENDS IN' }}</span>
+    <div class="announce-countdown">
+        <span class="announce-countdown-box" id="annHours">23</span>
+        <span class="announce-countdown-sep">:</span>
+        <span class="announce-countdown-box" id="annMinutes">59</span>
+        <span class="announce-countdown-sep">:</span>
+        <span class="announce-countdown-box" id="annSeconds">59</span>
+    </div>
+    <span>&mdash; {{ section.settings.suffix | default: 'FREE SHIPPING OVER RS 3,000' }}</span>
+</div>
+
+{% schema %}
+{
+  "name": "Announcement Bar",
+  "settings": [
+    { "type": "text", "id": "prefix", "label": "Prefix text", "default": "SALE ENDS IN" },
+    { "type": "text", "id": "suffix", "label": "Suffix text", "default": "FREE SHIPPING OVER RS 3,000" }
+  ]
+}
+{% endschema %}

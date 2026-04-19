@@ -1,0 +1,22 @@
+<nav class="navbar">
+    <div class="navbar-inner">
+        <a href="{{ routes.root_url }}" class="nav-logo">
+            <img src="{{ 'top-web-image.png' | asset_url }}" alt="Zarshah" class="nav-logo-img">
+            <img src="{{ 'brand-name.png' | asset_url }}" alt="ZARSHAH &mdash; Premium Men's Wear" class="nav-brand-name">
+        </a>
+
+        <div class="nav-links">
+            <a href="/pages/contact" class="nav-link" style="font-weight: 600; letter-spacing: 2px; font-size: 0.85rem;">CONTACT</a>
+            <a href="{{ routes.cart_url }}" class="nav-link" style="font-weight: 600; letter-spacing: 2px; font-size: 0.85rem;">CART <span class="nav-cart-count" id="navCartCount">{{ cart.item_count }}</span></a>
+        </div>
+
+        <div class="nav-icons" style="display:none;"></div>
+    </div>
+</nav>
+
+{% schema %}
+{
+  "name": "Navbar",
+  "settings": []
+}
+{% endschema %}

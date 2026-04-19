@@ -1,0 +1,28 @@
+<a href="{{ product.url }}" class="pc-card">
+    <div class="pc-card-img">
+        {%- if product.featured_image -%}
+            <img src="{{ product.featured_image | image_url: width: 600 }}" alt="{{ product.featured_image.alt | default: product.title | escape }}" loading="lazy">
+        {%- else -%}
+            <img src="https://placehold.co/500x550/1B2838/F0E6D3?text={{ product.title | url_encode }}" alt="{{ product.title | escape }}">
+        {%- endif -%}
+
+        {%- if product.tags contains 'new' or product.tags contains 'New' -%}
+            <span class="pc-badge pc-badge--new">New In</span>
+        {%- endif -%}
+
+        {%- if product.compare_at_price > product.price -%}
+            <span class="pc-badge pc-badge--sale">Sale</span>
+        {%- endif -%}
+    </div>
+    <div class="pc-info">
+        <div class="pc-name">{{ product.title }}</div>
+        <div class="pc-price">
+            {%- if product.compare_at_price > product.price -%}
+                <span class="pc-price-old">{{ product.compare_at_price | money }}</span>
+                <span class="pc-price-new">{{ product.price | money }}</span>
+            {%- else -%}
+                <span class="pc-price-new">{{ product.price | money }}</span>
+            {%- endif -%}
+        </div>
+    </div>
+</a>

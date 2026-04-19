@@ -1,0 +1,51 @@
+[
+  {
+    "name": "theme_info",
+    "theme_name": "ZARSHAH",
+    "theme_version": "1.0.0",
+    "theme_author": "ZARSHAH",
+    "theme_documentation_url": "https://zarshah.pk",
+    "theme_support_url": "https://zarshah.pk/pages/contact"
+  },
+  {
+    "name": "Brand",
+    "settings": [
+      {
+        "type": "header",
+        "content": "Contact Information"
+      },
+      {
+        "type": "text",
+        "id": "whatsapp_number",
+        "label": "WhatsApp Number (no +)",
+        "default": "923001234567"
+      },
+      {
+        "type": "text",
+        "id": "phone",
+        "label": "Phone",
+        "default": "+92 300 1234567"
+      },
+      {
+        "type": "text",
+        "id": "email",
+        "label": "Email",
+        "default": "hello@zarshah.pk"
+      },
+      {
+        "type": "header",
+        "content": "Social Media"
+      },
+      {
+        "type": "url",
+        "id": "instagram_url",
+        "label": "Instagram URL"
+      },
+      {
+        "type": "url",
+        "id": "facebook_url",
+        "label": "Facebook URL"
+      }
+    ]
+  }
+]

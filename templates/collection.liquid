@@ -1,0 +1,34 @@
+<section class="collection-section">
+    <div class="collection-layout">
+        <div class="collection-intro">
+            <h2>{{ collection.title }}</h2>
+            {%- if collection.description != blank -%}
+                <p>{{ collection.description }}</p>
+            {%- else -%}
+                <p><strong>Explore</strong> &mdash; Our curated selection of premium unstitched fabrics, crafted for the modern Pakistani man.</p>
+            {%- endif -%}
+            <a href="{{ routes.root_url }}" class="collection-cta">&larr; Back to Home</a>
+        </div>
+
+        <div class="collection-grid">
+            {%- paginate collection.products by 24 -%}
+                {%- for product in collection.products -%}
+                    {% render 'product-card', product: product %}
+                {%- else -%}
+                    <div style="padding: 40px; color: var(--subtitle);">No products in this collection yet.</div>
+                {%- endfor -%}
+
+                {%- if paginate.pages > 1 -%}
+                    <div style="grid-column: 1/-1; text-align: center; padding: 40px 0; display: flex; gap: 12px; justify-content: center;">
+                        {%- if paginate.previous -%}
+                            <a href="{{ paginate.previous.url }}" class="collection-cta">&larr; Prev</a>
+                        {%- endif -%}
+                        {%- if paginate.next -%}
+                            <a href="{{ paginate.next.url }}" class="collection-cta">Next &rarr;</a>
+                        {%- endif -%}
+                    </div>
+                {%- endif -%}
+            {%- endpaginate -%}
+        </div>
+    </div>
+</section>
