@@ -2,11 +2,9 @@
 function toggleTheme() {
     var body = document.body;
     var icon = document.getElementById('themeIcon');
-    var label = document.getElementById('themeLabel');
     body.classList.toggle('light-mode');
     var isLight = body.classList.contains('light-mode');
-    icon.textContent = isLight ? '☀️' : '🌙';
-    label.textContent = isLight ? 'DARK' : 'LIGHT';
+    if (icon) icon.textContent = isLight ? '☀️' : '🌙';
     localStorage.setItem('zarshah-theme', isLight ? 'light' : 'dark');
 }
 
@@ -16,9 +14,7 @@ function toggleTheme() {
     if (saved === 'light') {
         document.body.classList.add('light-mode');
         var icon = document.getElementById('themeIcon');
-        var label = document.getElementById('themeLabel');
         if (icon) icon.textContent = '☀️';
-        if (label) label.textContent = 'DARK';
     }
 })();
 
@@ -31,9 +27,13 @@ setTimeout(function() {
 (function() {
     // ========== 1. ANNOUNCEMENT BAR COUNTDOWN (24 hours from page load) ==========
     var endTime = Date.now() + 24 * 60 * 60 * 1000;
-    var annH = document.getElementById('annHours');
-    var annM = document.getElementById('annMinutes');
-    var annS = document.getElementById('annSeconds');
+    var annHs = document.querySelectorAll('.ann-h');
+    var annMs = document.querySelectorAll('.ann-m');
+    var annSs = document.querySelectorAll('.ann-s');
+
+    function setAll(nodes, value) {
+        for (var i = 0; i < nodes.length; i++) nodes[i].textContent = value;
+    }
 
     function updateAnnCountdown() {
         var remaining = Math.max(0, endTime - Date.now());
@@ -41,13 +41,15 @@ setTimeout(function() {
         var m = Math.floor((remaining % 3600000) / 60000);
         var s = Math.floor((remaining % 60000) / 1000);
 
-        if (annH) annH.textContent = String(h).padStart(2, '0');
-        if (annM) annM.textContent = String(m).padStart(2, '0');
-        if (annS) annS.textContent = String(s).padStart(2, '0');
+        setAll(annHs, String(h).padStart(2, '0'));
+        setAll(annMs, String(m).padStart(2, '0'));
+        setAll(annSs, String(s).padStart(2, '0'));
     }
 
-    updateAnnCountdown();
-    setInterval(updateAnnCountdown, 1000);
+    if (annHs.length) {
+        updateAnnCountdown();
+        setInterval(updateAnnCountdown, 1000);
+    }
 
     // ========== 2. NEXT DROP COUNTDOWN (next Thursday 8PM) ==========
     function getNextThursday8PM() {
@@ -67,29 +69,32 @@ setTimeout(function() {
     var ndM = document.getElementById('ndMinutes');
     var ndS = document.getElementById('ndSeconds');
 
-    function updateNextDrop() {
-        var remaining = Math.max(0, nextDropEnd - Date.now());
-        var d = Math.floor(remaining / 86400000);
-        var h = Math.floor((remaining % 86400000) / 3600000);
-        var m = Math.floor((remaining % 3600000) / 60000);
-        var s = Math.floor((remaining % 60000) / 1000);
-        ndD.textContent = String(d).padStart(2, '0');
-        ndH.textContent = String(h).padStart(2, '0');
-        ndM.textContent = String(m).padStart(2, '0');
-        ndS.textContent = String(s).padStart(2, '0');
+    if (ndD && ndH && ndM && ndS) {
+        var updateNextDrop = function() {
+            var remaining = Math.max(0, nextDropEnd - Date.now());
+            var d = Math.floor(remaining / 86400000);
+            var h = Math.floor((remaining % 86400000) / 3600000);
+            var m = Math.floor((remaining % 3600000) / 60000);
+            var s = Math.floor((remaining % 60000) / 1000);
+            ndD.textContent = String(d).padStart(2, '0');
+            ndH.textContent = String(h).padStart(2, '0');
+            ndM.textContent = String(m).padStart(2, '0');
+            ndS.textContent = String(s).padStart(2, '0');
+        };
+        updateNextDrop();
+        setInterval(updateNextDrop, 1000);
     }
-
-    updateNextDrop();
-    setInterval(updateNextDrop, 1000);
 
     // ========== 3. SCROLL PROGRESS BAR ==========
     var scrollBar = document.getElementById('scrollProgress');
-    window.addEventListener('scroll', function() {
-        var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-        var docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-        var progress = (scrollTop / docHeight) * 100;
-        scrollBar.style.width = progress + '%';
-    }, { passive: true });
+    if (scrollBar) {
+        window.addEventListener('scroll', function() {
+            var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            var docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            var progress = (scrollTop / docHeight) * 100;
+            scrollBar.style.width = progress + '%';
+        }, { passive: true });
+    }
 
     // ========== 4. CURSOR TRAIL ==========
     var dots = [];
@@ -223,7 +228,15 @@ function refreshCartCount() {
         .then(function(r){ return r.json(); })
         .then(function(data){
             var el = document.getElementById('navCartCount');
-            if (el) el.textContent = data.item_count;
+            if (el) {
+                el.textContent = data.item_count;
+                el.classList.toggle('is-empty', data.item_count === 0);
+            }
+            var mEl = document.getElementById('mobileMenuCartCount');
+            if (mEl) {
+                mEl.textContent = data.item_count;
+                mEl.classList.toggle('is-empty', data.item_count === 0);
+            }
         }).catch(function(){});
 }
 
@@ -236,3 +249,115 @@ document.addEventListener('DOMContentLoaded', function(){
         });
     });
 });
+
+// ========== MOBILE MENU (HAMBURGER DRAWER) ==========
+(function(){
+    var burger   = document.getElementById('navBurger');
+    var menu     = document.getElementById('mobileMenu');
+    var backdrop = document.getElementById('mobileMenuBackdrop');
+    var closeBtn = document.getElementById('mobileMenuClose');
+    if (!burger || !menu || !backdrop) return;
+
+    function openMenu() {
+        menu.classList.add('is-open');
+        backdrop.classList.add('is-open');
+        burger.classList.add('is-open');
+        burger.setAttribute('aria-expanded', 'true');
+        menu.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('mobile-menu-open');
+    }
+
+    function closeMenu() {
+        menu.classList.remove('is-open');
+        backdrop.classList.remove('is-open');
+        burger.classList.remove('is-open');
+        burger.setAttribute('aria-expanded', 'false');
+        menu.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('mobile-menu-open');
+    }
+
+    burger.addEventListener('click', function(){
+        if (menu.classList.contains('is-open')) closeMenu(); else openMenu();
+    });
+    if (closeBtn) closeBtn.addEventListener('click', closeMenu);
+    backdrop.addEventListener('click', closeMenu);
+
+    document.addEventListener('keydown', function(e){
+        if (e.key === 'Escape' && menu.classList.contains('is-open')) closeMenu();
+    });
+
+    // Close on link tap (so navigation feels snappy)
+    menu.querySelectorAll('.mobile-menu-link').forEach(function(link){
+        link.addEventListener('click', function(){ setTimeout(closeMenu, 50); });
+    });
+})();
+
+// ========== DISCOUNT POPUP (10% OFF) ==========
+(function(){
+    var popup    = document.getElementById('discountPopup');
+    var pill     = document.getElementById('discountPill');
+    if (!popup || !pill) return;
+
+    var closeBtn = document.getElementById('discountPopupClose');
+    var pillX    = document.getElementById('discountPillClose');
+    var form     = document.getElementById('discountPopupForm');
+
+    // Delay matches: homepage splash (~3.8s) + a breath. On other pages it's still fine.
+    var AUTO_DELAY_MS = 4500;
+
+    function openPopup() {
+        popup.classList.add('is-open');
+        popup.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('discount-popup-open');
+        pill.classList.remove('is-visible');
+        var first = popup.querySelector('input:not([type=hidden])');
+        if (first) setTimeout(function(){ first.focus(); }, 350);
+    }
+
+    function closePopup() {
+        popup.classList.remove('is-open');
+        popup.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('discount-popup-open');
+        showPill();
+    }
+
+    function showPill() {
+        pill.hidden = false;
+        requestAnimationFrame(function(){ pill.classList.add('is-visible'); });
+    }
+
+    function hidePill() {
+        pill.classList.remove('is-visible');
+        setTimeout(function(){ pill.hidden = true; }, 300);
+    }
+
+    // Auto-open on every page load
+    setTimeout(openPopup, AUTO_DELAY_MS);
+
+    // Wire up events
+    closeBtn.addEventListener('click', closePopup);
+
+    pill.addEventListener('click', function(e){
+        if (e.target === pillX || pillX.contains(e.target)) return;
+        openPopup();
+    });
+
+    pillX.addEventListener('click', function(e){
+        e.stopPropagation();
+        hidePill();
+    });
+    pillX.addEventListener('keydown', function(e){
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); hidePill(); }
+    });
+
+    // Close on backdrop click (not card)
+    popup.addEventListener('click', function(e){
+        if (e.target === popup) closePopup();
+    });
+
+    // Close on Escape
+    document.addEventListener('keydown', function(e){
+        if (e.key === 'Escape' && popup.classList.contains('is-open')) closePopup();
+    });
+
+})();

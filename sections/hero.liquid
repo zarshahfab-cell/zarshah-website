@@ -10,7 +10,7 @@
             <p class="hero-english-tagline" style="font-size: clamp(1.2rem, 2.4vw, 1.76rem); color: #A0A8B0; font-style: italic; letter-spacing: 6px; margin: 0;">&ldquo;{{ section.settings.tagline_en | default: 'Every thread holds a story' }}&rdquo;</p>
             <div style="height: 2px; background: #C9A84C; margin-top: 12px;"></div>
         </div>
-        <a href="#shopContent" class="btn-primary" onclick="event.preventDefault(); var el=document.getElementById('shopContent'); if(el){ el.style.display='block'; setTimeout(function(){ window.scrollTo({top: el.offsetTop - 130, behavior: 'smooth'}); }, 50); this.style.display='none'; }">{{ section.settings.cta_label | default: 'SHOP NOW' }} &rarr;</a>
+        <a href="{{ section.settings.cta_link | default: '/collections/all' }}" class="btn-primary">{{ section.settings.cta_label | default: 'SHOP NOW' }} &rarr;</a>
     </div>
 </section>
 
@@ -20,7 +20,8 @@
   "settings": [
     { "type": "text", "id": "tagline_urdu", "label": "Urdu Tagline", "default": "ہر تار ایک کہانی ہے" },
     { "type": "text", "id": "tagline_en", "label": "English Tagline", "default": "Every thread holds a story" },
-    { "type": "text", "id": "cta_label", "label": "Button Label", "default": "SHOP NOW" }
+    { "type": "text", "id": "cta_label", "label": "Button Label", "default": "SHOP NOW" },
+    { "type": "url", "id": "cta_link", "label": "Button Link", "default": "/collections/all" }
   ]
 }
 {% endschema %}

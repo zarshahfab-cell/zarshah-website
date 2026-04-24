@@ -7,8 +7,6 @@
                     <img src="{{ 'top-web-image.png' | asset_url }}" alt="Zarshah" class="footer-logo">
                     <img src="{{ 'brand-name.png' | asset_url }}" alt="ZARSHAH — Premium Men's Wear" class="footer-brand-img">
                 </div>
-                <p class="footer-tagline">ہر تار ایک کہانی ہے</p>
-                <p class="footer-tagline-en">&ldquo;Every thread holds a story&rdquo;</p>
                 <p class="footer-brand-desc">Premium unstitched fabrics for the modern Pakistani man. Crafted with heritage, designed for today.</p>
                 <div class="footer-socials">
                     <a href="{{ section.settings.instagram_url | default: 'https://www.instagram.com/zarshahofficial' }}" target="_blank" class="footer-social-link" aria-label="Instagram">
@@ -21,46 +19,6 @@
                         <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347M12 2a10 10 0 00-8.4 15.4L2 22l4.7-1.5A10 10 0 1012 2z"/></svg>
                     </a>
                 </div>
-            </div>
-
-            <!-- Shop Column -->
-            <div class="footer-col">
-                <h4 class="footer-col-title">Shop</h4>
-                <ul>
-                    <li><a href="/collections/all">All Fabrics</a></li>
-                    <li><a href="/collections/cotton">Cotton</a></li>
-                    <li><a href="/collections/wash-and-wear">Wash &amp; Wear</a></li>
-                    <li><a href="/collections/karandi">Karandi</a></li>
-                    <li><a href="/collections/khaddar">Khaddar</a></li>
-                    <li><a href="/collections/new-arrivals">New Arrivals</a></li>
-                    <li><a href="/collections/sale">Sale</a></li>
-                </ul>
-            </div>
-
-            <!-- Help Column -->
-            <div class="footer-col">
-                <h4 class="footer-col-title">Help</h4>
-                <ul>
-                    <li><a href="/pages/contact">Contact Us</a></li>
-                    <li><a href="/pages/size-guide">Size Guide</a></li>
-                    <li><a href="/pages/shipping">Shipping &amp; Delivery</a></li>
-                    <li><a href="/pages/returns">Returns &amp; Exchange</a></li>
-                    <li><a href="/account/orders">Track Order</a></li>
-                    <li><a href="/pages/faqs">FAQs</a></li>
-                </ul>
-            </div>
-
-            <!-- Company Column -->
-            <div class="footer-col">
-                <h4 class="footer-col-title">Company</h4>
-                <ul>
-                    <li><a href="/pages/about">Our Story</a></li>
-                    <li><a href="/pages/craftsmanship">Craftsmanship</a></li>
-                    <li><a href="/blogs/journal">Blog</a></li>
-                    <li><a href="/pages/careers">Careers</a></li>
-                    <li><a href="/pages/press">Press</a></li>
-                    <li><a href="/pages/wholesale">Wholesale</a></li>
-                </ul>
             </div>
 
             <!-- Contact Column -->
@@ -90,19 +48,22 @@
             </div>
         </div>
 
+        <!-- Horizontal Legal Links -->
+        <nav class="footer-legal-strip" aria-label="Legal">
+            <a href="/policies/privacy-policy">Privacy Policy</a>
+            <span class="footer-legal-sep" aria-hidden="true">&middot;</span>
+            <a href="/policies/terms-of-service">Terms of Service</a>
+            <span class="footer-legal-sep" aria-hidden="true">&middot;</span>
+            <a href="/policies/refund-policy">Refund Policy</a>
+            <span class="footer-legal-sep" aria-hidden="true">&middot;</span>
+            <a href="/pages/cookie-policy">Cookie Policy</a>
+        </nav>
+
         <!-- Bottom Strip -->
         <div class="footer-bottom">
             <div class="footer-copyright">
                 &copy; {{ 'now' | date: '%Y' }} <span class="gold">{{ shop.name | upcase }}</span>. All rights reserved.
             </div>
-
-            <div class="footer-legal">
-                <a href="/policies/privacy-policy">Privacy Policy</a>
-                <a href="/policies/terms-of-service">Terms of Service</a>
-                <a href="/policies/refund-policy">Refund Policy</a>
-                <a href="/pages/cookie-policy">Cookie Policy</a>
-            </div>
-
             <div class="footer-payments">
                 <div class="footer-payment-icons">
                     <span class="footer-payment-badge">VISA</span>

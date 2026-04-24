@@ -17,19 +17,42 @@
     <div class="product-container">
         <!-- Images -->
         <div class="product-images">
-            <div class="product-main-img">
-                {%- if product.featured_image -%}
-                    <img id="mainImg" src="{{ product.featured_image | image_url: width: 1000 }}" alt="{{ product.featured_image.alt | default: product.title | escape }}">
+            <div class="product-gallery" id="productGallery">
+                {%- if product.images.size > 0 -%}
+                    {%- for image in product.images -%}
+                        <div class="product-slide" data-index="{{ forloop.index0 }}">
+                            <img src="{{ image | image_url: width: 1000 }}" alt="{{ image.alt | default: product.title | escape }}" loading="{% if forloop.first %}eager{% else %}lazy{% endif %}">
+                        </div>
+                    {%- endfor -%}
                 {%- else -%}
-                    <img id="mainImg" src="https://placehold.co/800x880/1B2838/F0E6D3?text={{ product.title | url_encode }}" alt="{{ product.title | escape }}">
+                    <div class="product-slide" data-index="0">
+                        <img src="https://placehold.co/800x880/1B2838/F0E6D3?text={{ product.title | url_encode }}" alt="{{ product.title | escape }}">
+                    </div>
+                {%- endif -%}
+
+                {%- if product.images.size > 1 -%}
+                    <button type="button" class="gallery-arrow gallery-arrow--prev" id="galleryPrev" aria-label="Previous image">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                    </button>
+                    <button type="button" class="gallery-arrow gallery-arrow--next" id="galleryNext" aria-label="Next image">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                    </button>
+                    <div class="gallery-counter" id="galleryCounter" aria-live="polite">1 / {{ product.images.size }}</div>
                 {%- endif -%}
             </div>
+
             {%- if product.images.size > 1 -%}
-            <div class="product-thumbs">
-                {%- for image in product.images limit: 4 -%}
-                <div class="product-thumb {% if forloop.first %}active{% endif %}" onclick="document.getElementById('mainImg').src=this.querySelector('img').dataset.full;document.querySelectorAll('.product-thumb').forEach(function(t){t.classList.remove('active');});this.classList.add('active');">
-                    <img src="{{ image | image_url: width: 200 }}" data-full="{{ image | image_url: width: 1000 }}" alt="{{ image.alt | default: product.title | escape }}">
-                </div>
+            <div class="gallery-dots" id="galleryDots" role="tablist" aria-label="Product images">
+                {%- for image in product.images -%}
+                    <button type="button" class="gallery-dot {% if forloop.first %}is-active{% endif %}" data-slide="{{ forloop.index0 }}" role="tab" aria-label="Go to image {{ forloop.index }}"></button>
+                {%- endfor -%}
+            </div>
+
+            <div class="product-thumbs" role="list">
+                {%- for image in product.images -%}
+                <button type="button" class="product-thumb {% if forloop.first %}active{% endif %}" data-slide="{{ forloop.index0 }}" aria-label="View image {{ forloop.index }}">
+                    <img src="{{ image | image_url: width: 200 }}" alt="{{ image.alt | default: product.title | escape }}" loading="lazy">
+                </button>
                 {%- endfor -%}
             </div>
             {%- endif -%}
@@ -37,7 +60,6 @@
 
         <!-- Details -->
         <div class="product-details">
-            <p class="product-tagline-urdu">ہر تار ایک کہانی ہے</p>
             <h1 class="product-title">{{ product.title }}</h1>
             {%- if product.type != blank -%}
                 <p class="product-subtitle">{{ product.type }}</p>
@@ -50,6 +72,23 @@
                     <span class="product-discount">-{{ discount }}%</span>
                 {%- endif -%}
             </div>
+
+            {%- assign urgency_threshold = 20 -%}
+            {%- assign show_urgency = false -%}
+            {%- if current_variant.inventory_management != blank and current_variant.inventory_quantity > 0 and current_variant.inventory_quantity <= urgency_threshold -%}
+                {%- assign show_urgency = true -%}
+            {%- endif -%}
+            <div class="stock-urgency{% unless show_urgency %} is-hidden{% endunless %}" id="stockUrgency" data-threshold="{{ urgency_threshold }}">
+                <p class="stock-urgency-text">
+                    Hurry! Only <span class="stock-urgency-count" id="stockUrgencyCount">{{ current_variant.inventory_quantity | default: 0 }}</span> left in stock.
+                </p>
+                <div class="stock-urgency-bar">
+                    {%- assign fill_pct = current_variant.inventory_quantity | times: 100 | divided_by: urgency_threshold -%}
+                    {%- if fill_pct > 100 -%}{%- assign fill_pct = 100 -%}{%- endif -%}
+                    <div class="stock-urgency-fill" id="stockUrgencyFill" style="width: {{ fill_pct }}%;"></div>
+                </div>
+            </div>
+
             <p class="product-tax-note">Tax included. Shipping calculated at checkout.</p>
 
             {%- if product.description != blank -%}
@@ -150,7 +189,23 @@ function updateVariant() {
         document.getElementById('productPrice').textContent = 'Rs ' + (variant.price / 100).toLocaleString();
         var cmp = document.getElementById('productComparePrice');
         if (cmp && variant.compare_at_price) { cmp.textContent = 'Rs ' + (variant.compare_at_price / 100).toLocaleString(); }
+        updateStockUrgency(variant);
     }
+}
+
+function updateStockUrgency(variant) {
+    var wrap = document.getElementById('stockUrgency');
+    if (!wrap) return;
+    var threshold = parseInt(wrap.dataset.threshold || '20', 10);
+    var qty = (variant.inventory_management && typeof variant.inventory_quantity === 'number') ? variant.inventory_quantity : null;
+    if (qty === null || qty <= 0 || qty > threshold) {
+        wrap.classList.add('is-hidden');
+        return;
+    }
+    wrap.classList.remove('is-hidden');
+    document.getElementById('stockUrgencyCount').textContent = qty;
+    var pct = Math.min(100, Math.max(0, (qty / threshold) * 100));
+    document.getElementById('stockUrgencyFill').style.width = pct + '%';
 }
 
 function handleBuyNow() {
@@ -162,4 +217,67 @@ function handleBuyNow() {
         .then(function(){ window.location.href = '/checkout'; })
         .catch(function(){ form.submit(); });
 }
+
+// ========== PRODUCT GALLERY (swipeable) ==========
+(function(){
+    var gallery = document.getElementById('productGallery');
+    if (!gallery) return;
+
+    var slides   = gallery.querySelectorAll('.product-slide');
+    var dots     = document.querySelectorAll('#galleryDots .gallery-dot');
+    var thumbs   = document.querySelectorAll('.product-thumb[data-slide]');
+    var prevBtn  = document.getElementById('galleryPrev');
+    var nextBtn  = document.getElementById('galleryNext');
+    var counter  = document.getElementById('galleryCounter');
+    var total    = slides.length;
+    if (total <= 1) return;
+
+    function currentIndex() {
+        return Math.round(gallery.scrollLeft / gallery.clientWidth);
+    }
+
+    function goTo(index) {
+        index = Math.max(0, Math.min(total - 1, index));
+        gallery.scrollTo({ left: index * gallery.clientWidth, behavior: 'smooth' });
+    }
+
+    function updateActive() {
+        var i = currentIndex();
+        dots.forEach(function(d, di){ d.classList.toggle('is-active', di === i); });
+        thumbs.forEach(function(t, ti){ t.classList.toggle('active', ti === i); });
+        if (counter) counter.textContent = (i + 1) + ' / ' + total;
+
+        // Scroll active thumb into view
+        var activeThumb = thumbs[i];
+        if (activeThumb && activeThumb.scrollIntoView) {
+            activeThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+        }
+    }
+
+    var scrollTimer;
+    gallery.addEventListener('scroll', function(){
+        clearTimeout(scrollTimer);
+        scrollTimer = setTimeout(updateActive, 80);
+    }, { passive: true });
+
+    dots.forEach(function(dot){
+        dot.addEventListener('click', function(){ goTo(parseInt(this.dataset.slide, 10)); });
+    });
+
+    thumbs.forEach(function(thumb){
+        thumb.addEventListener('click', function(){ goTo(parseInt(this.dataset.slide, 10)); });
+    });
+
+    if (prevBtn) prevBtn.addEventListener('click', function(){ goTo(currentIndex() - 1); });
+    if (nextBtn) nextBtn.addEventListener('click', function(){ goTo(currentIndex() + 1); });
+
+    // Keyboard arrows when gallery is focused
+    gallery.setAttribute('tabindex', '0');
+    gallery.addEventListener('keydown', function(e){
+        if (e.key === 'ArrowLeft')  { e.preventDefault(); goTo(currentIndex() - 1); }
+        if (e.key === 'ArrowRight') { e.preventDefault(); goTo(currentIndex() + 1); }
+    });
+
+    updateActive();
+})();
 </script>

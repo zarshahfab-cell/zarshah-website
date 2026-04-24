@@ -1,13 +1,26 @@
 <div class="announcement-bar">
-    <span>&#128293; {{ section.settings.prefix | default: 'SALE ENDS IN' }}</span>
-    <div class="announce-countdown">
-        <span class="announce-countdown-box" id="annHours">23</span>
-        <span class="announce-countdown-sep">:</span>
-        <span class="announce-countdown-box" id="annMinutes">59</span>
-        <span class="announce-countdown-sep">:</span>
-        <span class="announce-countdown-box" id="annSeconds">59</span>
-    </div>
-    <span>&mdash; {{ section.settings.suffix | default: 'FREE SHIPPING OVER RS 3,000' }}</span>
+  <div class="announce-track">
+    {%- for i in (1..6) -%}
+      <div class="announce-group" {% unless i == 1 %}aria-hidden="true"{% endunless %}>
+        <span class="announce-item">
+          <svg class="announce-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="9"/>
+            <polyline points="12,7 12,12 15.5,14"/>
+          </svg>
+          {{ section.settings.prefix | default: 'SALE ENDS IN' }}
+        </span>
+        <div class="announce-countdown">
+          <span class="announce-countdown-box ann-h">23</span>
+          <span class="announce-countdown-sep">:</span>
+          <span class="announce-countdown-box ann-m">59</span>
+          <span class="announce-countdown-sep">:</span>
+          <span class="announce-countdown-box ann-s">59</span>
+        </div>
+        <span class="announce-item">&mdash; {{ section.settings.suffix | default: 'FREE SHIPPING OVER RS 3,000' }}</span>
+        <span class="announce-dot" aria-hidden="true">&bull;</span>
+      </div>
+    {%- endfor -%}
+  </div>
 </div>
 
 {% schema %}
@@ -15,7 +28,8 @@
   "name": "Announcement Bar",
   "settings": [
     { "type": "text", "id": "prefix", "label": "Prefix text", "default": "SALE ENDS IN" },
-    { "type": "text", "id": "suffix", "label": "Suffix text", "default": "FREE SHIPPING OVER RS 3,000" }
+    { "type": "text", "id": "suffix", "label": "Suffix text", "default": "FREE SHIPPING OVER RS 3,000" },
+    { "type": "range", "id": "speed", "label": "Scroll speed (seconds per loop)", "min": 15, "max": 60, "step": 5, "default": 30 }
   ]
 }
 {% endschema %}

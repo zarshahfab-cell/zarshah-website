@@ -1,0 +1,77 @@
+<!-- Collapsed corner pill (re-opens the popup) -->
+<button type="button" class="discount-pill" id="discountPill" aria-label="Get 10% off" hidden>
+  <span class="discount-pill-text">{{ section.settings.pill_label | default: '10% off' }}</span>
+  <span class="discount-pill-close" id="discountPillClose" aria-label="Dismiss" role="button" tabindex="0">&times;</span>
+</button>
+
+<!-- Full popup modal -->
+<div class="discount-popup-backdrop" id="discountPopup" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="discountPopupTitle">
+  <div class="discount-popup" role="document">
+    <button type="button" class="discount-popup-close" id="discountPopupClose" aria-label="Close">&times;</button>
+
+    <h2 class="discount-popup-title" id="discountPopupTitle">{{ section.settings.title | default: '10% OFF Summer Collection' }}</h2>
+    <p class="discount-popup-subtitle">{{ section.settings.subtitle | default: 'Fill out the form to get 10% off on your first order!' }}</p>
+
+    {%- form 'customer', class: 'discount-popup-form', id: 'discountPopupForm' -%}
+      <input type="hidden" name="contact[tags]" value="newsletter, 10off-popup">
+
+      {%- if form.errors -%}
+        <div class="discount-popup-error">{{ form.errors.translated_fields.email }} {{ form.errors.messages.email }}</div>
+      {%- endif -%}
+
+      {%- if form.posted_successfully? -%}
+        <div class="discount-popup-success">Thanks! Check your email for your 10% code.</div>
+      {%- else -%}
+        <div class="discount-popup-field">
+          <input type="text" name="contact[first_name]" id="discountFirstName" placeholder=" " required autocomplete="name">
+          <label for="discountFirstName">Full name</label>
+        </div>
+
+        <div class="discount-popup-row">
+          <div class="discount-popup-phone-prefix">
+            <span class="discount-popup-flag" aria-label="Pakistan">
+              <svg viewBox="0 0 900 600" width="28" height="19" xmlns="http://www.w3.org/2000/svg">
+                <rect width="900" height="600" fill="#01411C"/>
+                <rect width="225" height="600" fill="#FFFFFF"/>
+                <g transform="translate(553 300)">
+                  <circle r="135" fill="#FFFFFF"/>
+                  <circle r="120" cx="40" cy="-30" fill="#01411C"/>
+                  <polygon fill="#FFFFFF" points="0,-90 21,-28 86,-28 33,11 53,73 0,35 -53,73 -33,11 -86,-28 -21,-28" transform="translate(120 0) rotate(15)"/>
+                </g>
+              </svg>
+            </span>
+          </div>
+          <div class="discount-popup-field discount-popup-field--phone">
+            <input type="tel" name="contact[phone]" id="discountPhone" placeholder=" " inputmode="tel" pattern="[0-9+\-\s]{7,20}" required autocomplete="tel" value="+92 ">
+            <label for="discountPhone">Phone</label>
+          </div>
+        </div>
+
+        <div class="discount-popup-field">
+          <input type="email" name="contact[email]" id="discountEmail" placeholder=" " required autocomplete="email">
+          <label for="discountEmail">Email</label>
+        </div>
+
+        <button type="submit" class="discount-popup-submit">Submit</button>
+      {%- endif -%}
+    {%- endform -%}
+
+    <p class="discount-popup-fine">
+      By signing up, you agree to receive marketing emails and text messages. View our
+      <a href="/policies/privacy-policy">privacy policy</a> and
+      <a href="/policies/terms-of-service">terms of service</a> for more info.
+    </p>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Discount Popup",
+  "settings": [
+    { "type": "text", "id": "title", "label": "Popup title", "default": "10% OFF Summer Collection" },
+    { "type": "text", "id": "subtitle", "label": "Popup subtitle", "default": "Fill out the form to get 10% off on your first order!" },
+    { "type": "text", "id": "pill_label", "label": "Pill label (collapsed state)", "default": "10% off" },
+    { "type": "range", "id": "auto_open_delay", "label": "Auto-open delay (seconds)", "min": 0, "max": 10, "step": 1, "default": 3 }
+  ]
+}
+{% endschema %}

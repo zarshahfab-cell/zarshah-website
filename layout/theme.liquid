@@ -2,7 +2,10 @@
 <html lang="{{ request.locale.iso_code | default: 'en' }}">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
     <meta name="theme-color" content="#0D1B2A">
     <link rel="canonical" href="{{ canonical_url }}">
 
@@ -32,31 +35,19 @@
 </head>
 <body>
 
-<!-- Splash Screen (only on first visit per session, and only on homepage) -->
+<!-- Splash Screen (shows on every homepage load) -->
 {% if template == 'index' %}
 <div class="splash-screen" id="splashScreen">
     <img src="{{ 'newlogo.png' | asset_url }}" alt="{{ shop.name }}" class="splash-logo">
 </div>
-<script>
-    (function(){
-        if (sessionStorage.getItem('zarshah-splash-shown')) {
-            var s = document.getElementById('splashScreen');
-            if (s) s.style.display = 'none';
-        } else {
-            sessionStorage.setItem('zarshah-splash-shown', '1');
-        }
-    })();
-</script>
 {% endif %}
 
-<!-- Theme Toggle -->
-<div class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+<!-- Theme Toggle (homepage + product pages only) -->
+{% if template == 'index' or template contains 'product' %}
+<button type="button" class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle theme">
     <span class="theme-toggle-icon" id="themeIcon">&#127769;</span>
-    <span class="theme-toggle-label" id="themeLabel">LIGHT</span>
-    <div class="theme-toggle-track">
-        <div class="theme-toggle-thumb"></div>
-    </div>
-</div>
+</button>
+{% endif %}
 
 <!-- Background overlay -->
 <div class="bg-overlay" style="position: fixed; inset: 0; background: radial-gradient(ellipse at center, rgba(13, 27, 42, 0.75) 0%, rgba(13, 27, 42, 0.92) 70%, rgba(5, 12, 20, 0.97) 100%); z-index: 0; pointer-events: none;"></div>
@@ -85,6 +76,9 @@
 </div>
 
 {% section 'social-floats' %}
+{% if template == 'index' or template contains 'product' %}
+  {% section 'discount-popup' %}
+{% endif %}
 
 <script src="{{ 'theme.js' | asset_url }}" defer></script>
 

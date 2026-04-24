@@ -6,13 +6,66 @@
         </a>
 
         <div class="nav-links">
-            <a href="/pages/contact" class="nav-link" style="font-weight: 600; letter-spacing: 2px; font-size: 0.85rem;">CONTACT</a>
-            <a href="{{ routes.cart_url }}" class="nav-link" style="font-weight: 600; letter-spacing: 2px; font-size: 0.85rem;">CART <span class="nav-cart-count" id="navCartCount">{{ cart.item_count }}</span></a>
+            <a href="{{ routes.root_url }}" class="nav-link{% if template == 'index' %} is-active{% endif %}" style="font-weight: 600; letter-spacing: 2px; font-size: 0.85rem;">HOME</a>
+            <a href="/pages/contact" class="nav-link{% if template contains 'contact' %} is-active{% endif %}" style="font-weight: 600; letter-spacing: 2px; font-size: 0.85rem;">CONTACT</a>
+            <a href="{{ routes.cart_url }}" class="nav-link nav-cart" aria-label="Cart">
+                <svg class="nav-cart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 3h2.5l2.3 12.4a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.5L22 8H6.2"/>
+                    <circle cx="10" cy="20.5" r="1.4"/>
+                    <circle cx="18" cy="20.5" r="1.4"/>
+                </svg>
+                <span class="nav-cart-count {% if cart.item_count == 0 %}is-empty{% endif %}" id="navCartCount">{{ cart.item_count }}</span>
+            </a>
         </div>
 
-        <div class="nav-icons" style="display:none;"></div>
+        <!-- Mobile hamburger (only visible on small screens) -->
+        <button type="button" class="nav-burger" id="navBurger" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+            <span class="nav-burger-line"></span>
+            <span class="nav-burger-line"></span>
+            <span class="nav-burger-line"></span>
+        </button>
     </div>
 </nav>
+
+<!-- Mobile slide-out menu -->
+<div class="mobile-menu-backdrop" id="mobileMenuBackdrop" aria-hidden="true"></div>
+<aside class="mobile-menu" id="mobileMenu" aria-hidden="true" aria-label="Mobile menu">
+    <div class="mobile-menu-header">
+        <span class="mobile-menu-title">MENU</span>
+        <button type="button" class="mobile-menu-close" id="mobileMenuClose" aria-label="Close menu">&times;</button>
+    </div>
+
+    <nav class="mobile-menu-nav">
+        <a href="{{ routes.root_url }}" class="mobile-menu-link{% if template == 'index' %} is-active{% endif %}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-7H10v7H4a1 1 0 0 1-1-1z"/>
+            </svg>
+            <span>Home</span>
+        </a>
+
+        <a href="/pages/contact" class="mobile-menu-link{% if template contains 'contact' %} is-active{% endif %}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+            </svg>
+            <span>Contact</span>
+        </a>
+
+        <a href="{{ routes.cart_url }}" class="mobile-menu-link{% if template contains 'cart' %} is-active{% endif %}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M3 3h2.5l2.3 12.4a2 2 0 0 0 2 1.6h8.6a2 2 0 0 0 2-1.5L22 8H6.2"/>
+                <circle cx="10" cy="20.5" r="1.4"/>
+                <circle cx="18" cy="20.5" r="1.4"/>
+            </svg>
+            <span>Cart</span>
+            <span class="mobile-menu-badge {% if cart.item_count == 0 %}is-empty{% endif %}" id="mobileMenuCartCount">{{ cart.item_count }}</span>
+        </a>
+    </nav>
+
+    <div class="mobile-menu-footer">
+        <p class="mobile-menu-foot-text">Need help? Reach out anytime.</p>
+        <a href="https://wa.me/923113638999" target="_blank" rel="noopener" class="mobile-menu-foot-link">WhatsApp us</a>
+    </div>
+</aside>
 
 {% schema %}
 {
