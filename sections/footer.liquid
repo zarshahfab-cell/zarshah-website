@@ -37,7 +37,7 @@
                     <a href="tel:{{ section.settings.phone | default: '+923113638999' }}">{{ section.settings.phone | default: '+92 311 3638999' }}</a>
                 </div>
                 <h4 class="footer-col-title" style="margin-top: 24px; margin-bottom: 12px;">Newsletter</h4>
-                <p style="color: #A0A8B0; font-size: 0.8rem; line-height: 1.5;">Get 10% off your first order.</p>
+                <p class="footer-newsletter-desc" style="font-size: 0.8rem; line-height: 1.5;">Get 10% off your first order.</p>
                 {% form 'customer' %}
                     <input type="hidden" name="contact[tags]" value="newsletter">
                     <div class="footer-newsletter">
@@ -63,15 +63,6 @@
         <div class="footer-bottom">
             <div class="footer-copyright">
                 &copy; {{ 'now' | date: '%Y' }} <span class="gold">{{ shop.name | upcase }}</span>. All rights reserved.
-            </div>
-            <div class="footer-payments">
-                <div class="footer-payment-icons">
-                    <span class="footer-payment-badge">VISA</span>
-                    <span class="footer-payment-badge">MC</span>
-                    <span class="footer-payment-badge">JazzCash</span>
-                    <span class="footer-payment-badge">EasyPaisa</span>
-                    <span class="footer-payment-badge">COD</span>
-                </div>
             </div>
         </div>
     </div>

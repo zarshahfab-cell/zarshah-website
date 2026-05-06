@@ -25,8 +25,15 @@ setTimeout(function() {
 }, 3800);
 
 (function() {
-    // ========== 1. ANNOUNCEMENT BAR COUNTDOWN (24 hours from page load) ==========
-    var endTime = Date.now() + 24 * 60 * 60 * 1000;
+    // ========== 1. ANNOUNCEMENT BAR COUNTDOWN (persistent 24h from first visit) ==========
+    var ANN_KEY = 'zarshahSaleEndTime';
+    var ANN_DURATION_MS = 24 * 60 * 60 * 1000;
+    var endTime = parseInt(localStorage.getItem(ANN_KEY) || '0', 10);
+    if (!endTime || endTime < Date.now()) {
+        endTime = Date.now() + ANN_DURATION_MS;
+        localStorage.setItem(ANN_KEY, String(endTime));
+    }
+
     var annHs = document.querySelectorAll('.ann-h');
     var annMs = document.querySelectorAll('.ann-m');
     var annSs = document.querySelectorAll('.ann-s');
@@ -36,7 +43,13 @@ setTimeout(function() {
     }
 
     function updateAnnCountdown() {
-        var remaining = Math.max(0, endTime - Date.now());
+        var remaining = endTime - Date.now();
+        if (remaining <= 0) {
+            // Auto-restart for the next 24h cycle
+            endTime = Date.now() + ANN_DURATION_MS;
+            localStorage.setItem(ANN_KEY, String(endTime));
+            remaining = ANN_DURATION_MS;
+        }
         var h = Math.floor(remaining / 3600000);
         var m = Math.floor((remaining % 3600000) / 60000);
         var s = Math.floor((remaining % 60000) / 1000);
@@ -49,6 +62,29 @@ setTimeout(function() {
     if (annHs.length) {
         updateAnnCountdown();
         setInterval(updateAnnCountdown, 1000);
+    }
+
+    // ========== Hide announcement bar on scroll-down (all pages except homepage) ==========
+    var bar = document.querySelector('.announcement-bar');
+    var path = window.location.pathname;
+    var isHome = path === '/' || path === '' || /^\/?(\?|$)/.test(path);
+    if (bar && !isHome) {
+        var lastY = 0;
+        var ticking = false;
+        window.addEventListener('scroll', function(){
+            if (ticking) return;
+            ticking = true;
+            requestAnimationFrame(function(){
+                var y = window.pageYOffset || document.documentElement.scrollTop;
+                if (y > 80 && y > lastY) {
+                    bar.classList.add('is-hidden');
+                } else if (y < lastY || y < 60) {
+                    bar.classList.remove('is-hidden');
+                }
+                lastY = y;
+                ticking = false;
+            });
+        }, { passive: true });
     }
 
     // ========== 2. NEXT DROP COUNTDOWN (next Thursday 8PM) ==========

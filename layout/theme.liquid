@@ -42,12 +42,10 @@
 </div>
 {% endif %}
 
-<!-- Theme Toggle (homepage + product pages only) -->
-{% if template == 'index' or template contains 'product' %}
+<!-- Theme Toggle -->
 <button type="button" class="theme-toggle" id="themeToggle" onclick="toggleTheme()" aria-label="Toggle theme">
     <span class="theme-toggle-icon" id="themeIcon">&#127769;</span>
 </button>
-{% endif %}
 
 <!-- Background overlay -->
 <div class="bg-overlay" style="position: fixed; inset: 0; background: radial-gradient(ellipse at center, rgba(13, 27, 42, 0.75) 0%, rgba(13, 27, 42, 0.92) 70%, rgba(5, 12, 20, 0.97) 100%); z-index: 0; pointer-events: none;"></div>
@@ -76,7 +74,7 @@
 </div>
 
 {% section 'social-floats' %}
-{% if template == 'index' or template contains 'product' %}
+{% if template == 'index' %}
   {% section 'discount-popup' %}
 {% endif %}
 

@@ -65,6 +65,15 @@
                 <p class="product-subtitle">{{ product.type }}</p>
             {%- endif -%}
 
+            <!-- Fabric badge — every Zarshah piece is Wash & Wear -->
+            <div class="fabric-badge" aria-label="Fabric type">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 7l3-4h12l3 4-3 4H6L3 7z"/>
+                    <path d="M3 7v10a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7"/>
+                </svg>
+                <span><strong>Fabric:</strong> Wash &amp; Wear</span>
+            </div>
+
             <div class="product-price-block">
                 <span class="product-price-new" id="productPrice">{{ current_variant.price | money }}</span>
                 {%- if on_sale -%}
@@ -117,10 +126,9 @@
                 <div class="product-specs">
                     <h3>Specifications</h3>
                     <div class="spec-grid">
-                        {%- if product.metafields.specs.fabric != blank -%}
-                            <div class="spec-item"><span class="spec-label">Fabric</span><span class="spec-value">{{ product.metafields.specs.fabric }}</span></div>
-                        {%- else -%}
-                            <div class="spec-item"><span class="spec-label">Type</span><span class="spec-value">{{ product.type | default: 'Premium Fabric' }}</span></div>
+                        <div class="spec-item"><span class="spec-label">Fabric</span><span class="spec-value">Wash &amp; Wear</span></div>
+                        {%- if product.type != blank -%}
+                            <div class="spec-item"><span class="spec-label">Type</span><span class="spec-value">{{ product.type }}</span></div>
                         {%- endif -%}
                         {%- if product.metafields.specs.weight != blank -%}
                             <div class="spec-item"><span class="spec-label">Weight</span><span class="spec-value">{{ product.metafields.specs.weight }}</span></div>

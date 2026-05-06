@@ -418,76 +418,6 @@
             color: #1A1A2E;
         }
 
-        /* === FOOTER (stays dark in light mode for contrast) === */
-        body.light-mode .site-footer,
-        body.light-mode .footer {
-            background: #0D1B2A !important;
-            color: #F0E6D3 !important;
-        }
-
-        body.light-mode .site-footer .footer-tagline,
-        body.light-mode .site-footer .footer-tagline-urdu,
-        body.light-mode .footer-tagline-urdu {
-            color: #C9A84C !important;
-        }
-
-        body.light-mode .site-footer .footer-tagline-en,
-        body.light-mode .site-footer .footer-tagline-english,
-        body.light-mode .footer-tagline-english {
-            color: rgba(240, 230, 211, 0.75) !important;
-        }
-
-        body.light-mode .site-footer .footer-brand-desc,
-        body.light-mode .site-footer .footer-contact-item,
-        body.light-mode .site-footer .footer-contact-item span,
-        body.light-mode .site-footer .footer-col li,
-        body.light-mode .site-footer p {
-            color: rgba(240, 230, 211, 0.8) !important;
-        }
-
-        body.light-mode .site-footer .footer-col-title,
-        body.light-mode .footer-col-title {
-            color: #C9A84C !important;
-        }
-
-        body.light-mode .site-footer a,
-        body.light-mode .footer a {
-            color: rgba(240, 230, 211, 0.85) !important;
-        }
-
-        body.light-mode .site-footer a:hover,
-        body.light-mode .footer a:hover {
-            color: #C9A84C !important;
-        }
-
-        body.light-mode .site-footer .footer-copyright,
-        body.light-mode .footer-copyright {
-            color: rgba(240, 230, 211, 0.6) !important;
-        }
-
-        body.light-mode .site-footer .footer-brand-text {
-            color: #C9A84C !important;
-        }
-
-        body.light-mode .site-footer .footer-brand-sub {
-            color: #F0E6D3 !important;
-        }
-
-        body.light-mode .site-footer .footer-newsletter input {
-            background: rgba(13, 27, 42, 0.6) !important;
-            border-color: rgba(201, 168, 76, 0.3) !important;
-            color: #F0E6D3 !important;
-        }
-
-        body.light-mode .site-footer .footer-newsletter input::placeholder {
-            color: rgba(240, 230, 211, 0.5) !important;
-        }
-
-        body.light-mode .site-footer .footer-payment-badge {
-            color: rgba(240, 230, 211, 0.7) !important;
-            border-color: rgba(240, 230, 211, 0.2) !important;
-        }
-
         /* === TOASTS === */
         body.light-mode .toast {
             background: #FFFFFF;
@@ -790,13 +720,13 @@
         /* ========== THEME TOGGLE (compact circular icon-only button) ========== */
         .theme-toggle {
             position: fixed;
-            bottom: 200px;
-            right: 20px;
+            bottom: 320px;
+            right: 30px;
             left: auto;
             top: auto;
             z-index: 9997;
-            width: 42px;
-            height: 42px;
+            width: 44px;
+            height: 44px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -841,11 +771,11 @@
 
         @media (max-width: 768px) {
             .theme-toggle {
-                bottom: 196px;
-                right: 16px;
+                bottom: 200px;
+                right: 20px;
                 left: auto;
-                width: 40px;
-                height: 40px;
+                width: 42px;
+                height: 42px;
             }
         }
 
@@ -1130,6 +1060,12 @@
             left: 0;
             right: 0;
             z-index: 999;
+            transition: transform 0.3s ease;
+        }
+        .announcement-bar.is-hidden {
+            transform: translateY(-110%);
+        }
+        .announcement-bar {
             background: linear-gradient(90deg, var(--gold), #B8953E);
             color: var(--bg);
             font-family: 'DM Sans', sans-serif;
@@ -4053,11 +3989,6 @@
         z-index: 10;
     }
 
-    body.light-mode .site-footer {
-        background: #0D1B2A;
-        border-top-color: #C9A84C;
-    }
-
     .footer-inner {
         max-width: 1280px;
         margin: 0 auto;
@@ -4615,7 +4546,9 @@ body.light-mode .nav-cart-count {
     border: 1px solid var(--card-border);
     border-radius: 12px;
     aspect-ratio: 1 / 1.1;
-    touch-action: pan-y pinch-zoom;
+    /* Allow both horizontal swipes (gallery) AND vertical scroll (page) */
+    touch-action: pan-x pan-y;
+    overscroll-behavior-x: contain;
 }
 
 .product-gallery::-webkit-scrollbar { display: none; }
@@ -4769,6 +4702,8 @@ body.light-mode .product-main-img {
     scrollbar-width: thin;
     scrollbar-color: var(--gold) transparent;
     padding-bottom: 6px;
+    touch-action: pan-x pan-y;
+    overscroll-behavior-x: contain;
 }
 
 .product-thumbs::-webkit-scrollbar {
@@ -4919,22 +4854,27 @@ body.light-mode .product-thumb { background: #fff; }
 
 .spec-item {
     display: flex;
-    justify-content: space-between;
-    padding: 8px 0;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 10px 0;
     border-bottom: 1px dashed var(--card-border);
-    font-size: 0.85rem;
 }
 
 .spec-label {
     color: var(--subtitle);
     text-transform: uppercase;
-    letter-spacing: 1px;
-    font-size: 0.75rem;
+    letter-spacing: 1.2px;
+    font-size: 0.7rem;
+    line-height: 1.2;
 }
 
 .spec-value {
     color: var(--text);
     font-weight: 600;
+    font-size: 0.92rem;
+    line-height: 1.4;
+    word-break: break-word;
 }
 
 /* ========== QUANTITY ========== */
@@ -5120,17 +5060,12 @@ body.light-mode .product-trust {
     padding: 32px 24px;
 }
 
-body.light-mode .site-footer {
-    background: #0D1B2A;
-    border-top-color: #C9A84C;
-}
-
 .footer-bottom {
     max-width: 1280px;
     margin: 0 auto;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
     gap: 16px;
     flex-wrap: wrap;
     color: #A0A8B0;
@@ -5753,10 +5688,11 @@ body {
 
     .spec-item {
         padding: 10px 12px;
+        gap: 4px;
     }
 
-    .spec-label { font-size: 0.7rem; }
-    .spec-value { font-size: 0.85rem; }
+    .spec-label { font-size: 0.65rem; letter-spacing: 1px; }
+    .spec-value { font-size: 0.88rem; }
 
     /* Option selects — full width, tap-friendly */
     .product-specs select,
@@ -6008,11 +5944,11 @@ body {
 
     /* Theme toggle — tighter on tiny screens */
     .theme-toggle {
-        bottom: 178px;
-        right: 14px;
+        bottom: 180px;
+        right: 18px;
         left: auto;
-        width: 38px;
-        height: 38px;
+        width: 40px;
+        height: 40px;
     }
 }
 
@@ -6316,6 +6252,53 @@ body.light-mode .mobile-menu-link.is-active { color: #B8953E; background: rgba(2
 /* Lock body scroll while drawer is open */
 body.mobile-menu-open {
     overflow: hidden;
+}
+
+/* ======================================================================== */
+/* ================= FABRIC BADGE (every product is Wash & Wear) ========== */
+.fabric-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 8px 0 14px;
+    padding: 8px 14px;
+    background: rgba(201, 168, 76, 0.12);
+    border: 1px solid rgba(201, 168, 76, 0.35);
+    border-radius: 999px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    color: var(--text);
+    letter-spacing: 0.3px;
+}
+.fabric-badge svg {
+    width: 16px;
+    height: 16px;
+    color: var(--gold);
+    flex-shrink: 0;
+}
+.fabric-badge strong {
+    color: var(--gold);
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-size: 0.72rem;
+    margin-right: 2px;
+}
+body.light-mode .fabric-badge {
+    background: rgba(201, 168, 76, 0.1);
+    border-color: rgba(184, 149, 62, 0.5);
+    color: #1A1A2E;
+}
+body.light-mode .fabric-badge strong {
+    color: #B8953E;
+}
+
+@media (max-width: 480px) {
+    .fabric-badge {
+        font-size: 0.78rem;
+        padding: 7px 12px;
+    }
+    .fabric-badge svg { width: 14px; height: 14px; }
 }
 
 /* ======================================================================== */
@@ -6755,5 +6738,588 @@ body.discount-popup-open {
     /* Kill hover-only transforms so nothing sticks after tap */
     .pc-card:hover .pc-card-img img { transform: none !important; }
     .nav-link:hover { color: inherit; }
+}
+
+/* ======================================================================== */
+/* ============== COMPREHENSIVE LIGHT-MODE POLISH (FINAL OVERRIDES) ======= */
+/* Final pass — converts every leftover dark surface, border, and text     */
+/* color into a coherent cream + navy + gold palette for light mode.       */
+/* ======================================================================== */
+
+/* ---- Body / global ---- */
+body.light-mode {
+    background-color: #F5F2ED;
+    color: #1A1A2E;
+}
+
+body.light-mode .bg-overlay { display: none !important; }
+
+/* ---- Splash screen ---- */
+body.light-mode .splash-screen {
+    background: #F5F2ED !important;
+}
+body.light-mode .splash-logo {
+    filter: drop-shadow(0 4px 24px rgba(201, 168, 76, 0.25));
+}
+
+/* ---- Navbar (already styled but enforce gold cart icon contrast) ---- */
+body.light-mode .nav-link {
+    color: #4A4A55;
+}
+body.light-mode .nav-link:hover,
+body.light-mode .nav-link.is-active {
+    color: #B8953E;
+}
+body.light-mode .nav-cart-count {
+    background: #B8953E;
+    color: #FFFFFF;
+    box-shadow: 0 0 0 2px #F5F2ED;
+}
+
+/* ---- Mobile menu drawer ---- */
+body.light-mode .mobile-menu {
+    background: #FFFFFF;
+    border-left-color: rgba(0, 0, 0, 0.08);
+}
+body.light-mode .mobile-menu-link {
+    color: #1A1A2E;
+}
+body.light-mode .mobile-menu-link:hover,
+body.light-mode .mobile-menu-link.is-active {
+    background: rgba(201, 168, 76, 0.12);
+    color: #B8953E;
+}
+body.light-mode .mobile-menu-link.is-active::before {
+    background: #B8953E;
+}
+body.light-mode .mobile-menu-header {
+    border-bottom-color: rgba(0, 0, 0, 0.08);
+}
+body.light-mode .mobile-menu-footer {
+    border-top-color: rgba(0, 0, 0, 0.08);
+}
+body.light-mode .mobile-menu-foot-text {
+    color: #6B7280;
+}
+
+/* ---- Announcement bar — force gold gradient + dark text in light mode ---- */
+body.light-mode .announcement-bar {
+    background: linear-gradient(90deg, #C9A84C 0%, #B8953E 100%) !important;
+    color: #1A1A2E !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+body.light-mode .announcement-bar a,
+body.light-mode .announce-item,
+body.light-mode .announce-dot {
+    color: #1A1A2E !important;
+}
+body.light-mode .announce-icon {
+    stroke: #1A1A2E !important;
+}
+body.light-mode .announce-countdown-box {
+    background: #0D1B2A !important;
+    color: #FFD25C !important;
+}
+body.light-mode .announce-countdown-sep {
+    color: #1A1A2E !important;
+}
+
+/* ---- Contact page cards (overrides inline styles) ---- */
+body.light-mode .contact-info-card,
+body.light-mode .contact-form-card {
+    background: #FFFFFF !important;
+    border-color: rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+body.light-mode .contact-info-card .contact-info-content h4,
+body.light-mode .contact-form-card .form-label {
+    color: #6B7280 !important;
+}
+body.light-mode .contact-info-card .contact-info-content p,
+body.light-mode .contact-info-card .contact-info-content a {
+    color: #1A1A2E !important;
+}
+body.light-mode .contact-info-icon {
+    background: rgba(201, 168, 76, 0.12) !important;
+    border-color: rgba(184, 149, 62, 0.4) !important;
+    color: #B8953E !important;
+}
+body.light-mode .contact-info-item {
+    border-bottom-color: rgba(0, 0, 0, 0.08) !important;
+}
+body.light-mode .contact-form-card .form-input,
+body.light-mode .contact-form-card textarea,
+body.light-mode .contact-form-card select {
+    background: #FFFFFF !important;
+    border: 1.5px solid rgba(0, 0, 0, 0.12) !important;
+    color: #1A1A2E !important;
+}
+body.light-mode .contact-form-card .form-input::placeholder,
+body.light-mode .contact-form-card textarea::placeholder {
+    color: #9CA3AF !important;
+}
+body.light-mode .contact-title {
+    color: #0D1B2A !important;
+}
+body.light-mode .contact-subtitle {
+    color: #6B7280 !important;
+}
+
+/* ---- Hero ---- */
+body.light-mode .hero {
+    background: transparent;
+}
+body.light-mode .hero-overlay {
+    background: linear-gradient(180deg, rgba(245, 242, 237, 0.92) 0%, rgba(245, 242, 237, 0.99) 100%) !important;
+}
+body.light-mode .hero-bg img {
+    opacity: 0.07;
+}
+body.light-mode .hero-title {
+    color: #0D1B2A !important;
+    text-shadow: 0 2px 12px rgba(201, 168, 76, 0.25);
+}
+body.light-mode .hero-english-tagline {
+    color: #6B7280 !important;
+}
+body.light-mode .hero-tagline-wrap > div[style*="background"] {
+    background: #B8953E !important;
+}
+
+/* ---- Buttons / CTAs ---- */
+body.light-mode .btn-primary {
+    background: linear-gradient(180deg, #C9A84C 0%, #B8953E 100%);
+    color: #FFFFFF;
+    border-color: #B8953E;
+}
+body.light-mode .btn-primary:hover {
+    box-shadow: 0 8px 24px rgba(201, 168, 76, 0.4);
+}
+body.light-mode .collection-cta {
+    background: #FFFFFF;
+    color: #1A1A2E;
+    border: 1.5px solid #B8953E;
+}
+body.light-mode .collection-cta:hover {
+    background: #B8953E;
+    color: #FFFFFF;
+}
+
+/* ---- Collection / featured-collection section ---- */
+body.light-mode .collection-section {
+    background: transparent;
+}
+body.light-mode .collection-intro h2 {
+    color: #0D1B2A;
+}
+body.light-mode .collection-intro p {
+    color: #4A4A55;
+}
+body.light-mode .collection-intro p strong {
+    color: #B8953E;
+}
+
+/* ---- Product cards ---- */
+body.light-mode .pc-card {
+    background: #FFFFFF;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+body.light-mode .pc-card:hover {
+    border-color: #B8953E;
+    box-shadow: 0 8px 28px rgba(201, 168, 76, 0.18);
+}
+body.light-mode .pc-card-img {
+    background: #FAF8F4;
+}
+body.light-mode .pc-name {
+    color: #1A1A2E;
+}
+body.light-mode .pc-price-new {
+    color: #0D1B2A;
+}
+body.light-mode .pc-price-old {
+    color: #999;
+}
+body.light-mode .pc-badge--new {
+    background: #B8953E;
+    color: #FFFFFF;
+}
+body.light-mode .pc-badge--sale {
+    background: #FF3B3B;
+    color: #FFFFFF;
+}
+
+/* ---- Product page ---- */
+body.light-mode .breadcrumb {
+    color: #6B7280;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+body.light-mode .breadcrumb a {
+    color: #6B7280;
+}
+body.light-mode .breadcrumb a:hover {
+    color: #B8953E;
+}
+body.light-mode .breadcrumb .sep,
+body.light-mode .breadcrumb .current {
+    color: #1A1A2E;
+}
+body.light-mode .product-gallery {
+    background: #FAF8F4;
+    border-color: rgba(0, 0, 0, 0.08);
+}
+body.light-mode .product-slide {
+    background: #FAF8F4;
+}
+body.light-mode .product-thumb {
+    background: #FFFFFF;
+    border: 2px solid rgba(0, 0, 0, 0.08);
+}
+body.light-mode .product-thumb.active,
+body.light-mode .product-thumb:hover {
+    border-color: #B8953E;
+}
+body.light-mode .product-title {
+    color: #0D1B2A;
+}
+body.light-mode .product-subtitle {
+    color: #6B7280;
+}
+body.light-mode .product-price-new {
+    color: #0D1B2A;
+}
+body.light-mode .product-price-old {
+    color: #999;
+}
+body.light-mode .product-discount {
+    background: #FF3B3B;
+    color: #FFFFFF;
+}
+body.light-mode .product-tax-note {
+    color: #6B7280;
+}
+body.light-mode .product-description {
+    color: #4A4A55;
+}
+body.light-mode .product-specs h3 {
+    color: #B8953E;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+body.light-mode .spec-item {
+    background: #FFFFFF;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+}
+body.light-mode .spec-label {
+    color: #6B7280;
+}
+body.light-mode .spec-value {
+    color: #1A1A2E;
+}
+body.light-mode .product-specs select,
+body.light-mode .product-specs .form-input {
+    background: #FFFFFF;
+    border: 1.5px solid rgba(0, 0, 0, 0.12);
+    color: #1A1A2E;
+}
+body.light-mode .product-specs select:focus,
+body.light-mode .product-specs .form-input:focus {
+    border-color: #B8953E;
+}
+body.light-mode .qty-btn {
+    background: #FFFFFF;
+    border: 1.5px solid rgba(0, 0, 0, 0.12);
+    color: #1A1A2E;
+}
+body.light-mode .qty-btn:hover {
+    border-color: #B8953E;
+    color: #B8953E;
+}
+body.light-mode .qty-input {
+    background: #FFFFFF;
+    border-top: 1.5px solid rgba(0, 0, 0, 0.12);
+    border-bottom: 1.5px solid rgba(0, 0, 0, 0.12);
+    color: #1A1A2E;
+}
+body.light-mode .btn-cart {
+    background: #0D1B2A;
+    color: #FFFFFF;
+}
+body.light-mode .btn-cart:hover {
+    background: #1A1A2E;
+}
+body.light-mode .btn-buy {
+    background: linear-gradient(180deg, #C9A84C 0%, #B8953E 100%);
+    color: #FFFFFF;
+}
+body.light-mode .product-trust {
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+body.light-mode .trust-item {
+    color: #4A4A55;
+}
+
+/* ---- Stock urgency ---- */
+body.light-mode .stock-urgency-text {
+    color: #1A1A2E;
+}
+body.light-mode .stock-urgency-bar {
+    background: rgba(0, 0, 0, 0.08);
+}
+
+/* ---- Cart page ---- */
+body.light-mode .cart-page,
+body.light-mode .cart-wrapper,
+body.light-mode .cart-container,
+body.light-mode .cart-item,
+body.light-mode .cart-line-item {
+    background: transparent;
+    color: #1A1A2E;
+}
+body.light-mode .cart-item,
+body.light-mode .cart-line-item {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+body.light-mode .btn-checkout,
+body.light-mode .btn-place-order {
+    background: #0D1B2A;
+    color: #FFFFFF;
+}
+body.light-mode .btn-checkout:hover,
+body.light-mode .btn-place-order:hover {
+    background: #1A1A2E;
+}
+
+/* ---- Contact page ---- */
+body.light-mode .contact-form input,
+body.light-mode .contact-form textarea,
+body.light-mode .contact-form select {
+    background: #FFFFFF;
+    border: 1.5px solid rgba(0, 0, 0, 0.12);
+    color: #1A1A2E;
+}
+
+/* ---- Generic page (legal, about) ---- */
+body.light-mode .legal-wrap,
+body.light-mode .legal-container,
+body.light-mode .legal-content {
+    color: #1A1A2E;
+}
+body.light-mode .legal-title {
+    color: #0D1B2A;
+}
+
+/* ====================== FOOTER (full light-mode rebuild) ================= */
+body.light-mode .site-footer {
+    background: linear-gradient(180deg, #FFFFFF 0%, #F5F2ED 100%) !important;
+    color: #1A1A2E !important;
+    border-top: 2px solid #C9A84C !important;
+}
+/* Push footer content away from social float column on desktop/laptop */
+@media (min-width: 769px) {
+    .site-footer {
+        padding-right: 110px !important;
+    }
+}
+
+/* NUCLEAR override — every text node in the footer becomes dark navy */
+body.light-mode .site-footer,
+body.light-mode .site-footer p,
+body.light-mode .site-footer span,
+body.light-mode .site-footer li,
+body.light-mode .site-footer a,
+body.light-mode .site-footer h1,
+body.light-mode .site-footer h2,
+body.light-mode .site-footer h3,
+body.light-mode .site-footer h4,
+body.light-mode .site-footer h5,
+body.light-mode .site-footer h6,
+body.light-mode .site-footer div,
+body.light-mode .site-footer label {
+    color: #1A1A2E !important;
+}
+/* Re-color the things that should NOT be black */
+body.light-mode .footer-col-title,
+body.light-mode .footer-copyright .gold,
+body.light-mode .footer-newsletter button,
+body.light-mode .footer-social-link:hover svg {
+    color: #B8953E !important;
+}
+body.light-mode .footer-newsletter button {
+    color: #FFFFFF !important;
+}
+body.light-mode .footer-legal-strip a:hover,
+body.light-mode .footer-contact-item a:hover,
+body.light-mode .footer-col a:hover {
+    color: #B8953E !important;
+}
+body.light-mode .footer-top {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+body.light-mode .footer-brand-desc {
+    color: #2A2A3A !important;
+}
+body.light-mode .footer-contact-item,
+body.light-mode .footer-contact-item span {
+    color: #2A2A3A !important;
+}
+body.light-mode .footer-contact-item a {
+    color: #2A2A3A !important;
+}
+body.light-mode .footer-contact-item a:hover {
+    color: #B8953E !important;
+}
+body.light-mode .footer-contact-item svg {
+    stroke: #B8953E !important;
+    color: #B8953E !important;
+}
+body.light-mode .footer-col-title {
+    color: #B8953E !important;
+}
+body.light-mode .footer-col p,
+body.light-mode .footer-col li,
+body.light-mode .footer-col a {
+    color: #2A2A3A !important;
+}
+body.light-mode .footer-col a:hover {
+    color: #B8953E !important;
+}
+body.light-mode .footer-social-link {
+    background: #FFFFFF !important;
+    border: 1px solid rgba(0, 0, 0, 0.12) !important;
+    color: #1A1A2E !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+body.light-mode .footer-social-link svg {
+    fill: #1A1A2E !important;
+}
+body.light-mode .footer-social-link:hover {
+    background: #B8953E !important;
+    border-color: #B8953E !important;
+    transform: translateY(-2px);
+}
+body.light-mode .footer-social-link:hover svg {
+    fill: #FFFFFF !important;
+}
+body.light-mode .footer-newsletter {
+    background: transparent !important;
+}
+body.light-mode .footer-newsletter input {
+    background: #FFFFFF !important;
+    border: 1.5px solid rgba(0, 0, 0, 0.18) !important;
+    color: #1A1A2E !important;
+}
+body.light-mode .footer-newsletter input::placeholder {
+    color: #6B7280 !important;
+}
+body.light-mode .footer-newsletter input:focus {
+    border-color: #B8953E !important;
+}
+body.light-mode .footer-newsletter button {
+    background: linear-gradient(180deg, #C9A84C 0%, #B8953E 100%) !important;
+    color: #FFFFFF !important;
+    border: none !important;
+}
+body.light-mode .footer-newsletter button:hover {
+    box-shadow: 0 4px 14px rgba(201, 168, 76, 0.4);
+}
+/* "Get 10% off your first order" newsletter description */
+body.light-mode .footer-col p[style*="color"],
+body.light-mode .site-footer p[style*="color"] {
+    color: #2A2A3A !important;
+}
+body.light-mode .footer-legal-strip {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+body.light-mode .footer-legal-strip a {
+    color: #2A2A3A !important;
+    font-weight: 500;
+}
+body.light-mode .footer-legal-strip a:hover {
+    color: #B8953E !important;
+}
+body.light-mode .footer-legal-sep {
+    color: #B8953E !important;
+    opacity: 0.55;
+}
+body.light-mode .footer-bottom {
+    border-top: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+body.light-mode .footer-copyright {
+    color: #2A2A3A !important;
+    font-weight: 500;
+}
+body.light-mode .footer-copyright .gold {
+    color: #B8953E !important;
+    font-weight: 700;
+}
+
+/* ---- Floating buttons stay vibrant in both modes (no override needed) ---- */
+/* Theme toggle in light mode: subtle inverted look */
+body.light-mode .theme-toggle {
+    background: rgba(255, 255, 255, 0.95);
+    border-color: rgba(0, 0, 0, 0.08);
+    color: #1A1A2E;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+}
+body.light-mode .theme-toggle:hover {
+    background: rgba(201, 168, 76, 0.12);
+    box-shadow: 0 8px 20px rgba(201, 168, 76, 0.2);
+}
+
+/* ---- Discount pill (10% off) ---- */
+body.light-mode .discount-pill {
+    color: #FFFFFF;
+}
+body.light-mode .discount-pill-close {
+    color: #FFFFFF;
+    background: rgba(255, 255, 255, 0.25);
+}
+
+/* ---- Section titles & subtitles fallbacks ---- */
+body.light-mode .section-title {
+    color: #0D1B2A;
+}
+body.light-mode .section-subtitle {
+    color: #6B7280;
+}
+
+/* ---- Headings everywhere ---- */
+body.light-mode h1,
+body.light-mode h2,
+body.light-mode h3,
+body.light-mode h4,
+body.light-mode h5,
+body.light-mode h6 {
+    color: #0D1B2A;
+}
+
+/* ---- Form inputs everywhere as a safety net ---- */
+body.light-mode input[type="text"],
+body.light-mode input[type="email"],
+body.light-mode input[type="tel"],
+body.light-mode input[type="number"],
+body.light-mode input[type="search"],
+body.light-mode input[type="password"],
+body.light-mode select,
+body.light-mode textarea {
+    background: #FFFFFF;
+    color: #1A1A2E;
+    border-color: rgba(0, 0, 0, 0.15);
+}
+body.light-mode input:focus,
+body.light-mode select:focus,
+body.light-mode textarea:focus {
+    border-color: #B8953E;
+}
+
+/* ---- Smooth transition when toggling modes ---- */
+body, body * {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+/* Don't transition transforms/scrolls */
+.announce-track, .marquee, .splash-screen, .product-gallery, .mobile-menu,
+.discount-popup-backdrop, .discount-popup, .nav-burger-line {
+    transition: transform 0.3s ease, opacity 0.3s ease !important;
 }
 
