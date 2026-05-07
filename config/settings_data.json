@@ -1,3 +1,12 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
 {
   "current": {
     "whatsapp_number": "923113638999",
@@ -6,12 +15,41 @@
     "instagram_url": "https://www.instagram.com/zarshahofficial",
     "facebook_url": "https://www.facebook.com/share/1B3J5mLPyw/",
     "sections": {
-      "navbar": { "type": "navbar" },
-      "announcement-bar": { "type": "announcement-bar" },
-      "hero": { "type": "hero" },
-      "featured-collection": { "type": "featured-collection", "settings": { "heading": "Premium Collection", "product_limit": 6 } },
-      "footer": { "type": "footer" },
-      "social-floats": { "type": "social-floats" }
+      "navbar": {
+        "type": "navbar",
+        "settings": {}
+      },
+      "announcement-bar": {
+        "type": "announcement-bar",
+        "settings": {}
+      },
+      "hero": {
+        "type": "hero",
+        "settings": {}
+      },
+      "featured-collection": {
+        "type": "featured-collection",
+        "settings": {
+          "heading": "Premium Collection",
+          "product_limit": 6
+        }
+      },
+      "footer": {
+        "type": "footer",
+        "settings": {}
+      },
+      "social-floats": {
+        "type": "social-floats",
+        "settings": {}
+      }
+    },
+    "content_for_index": [],
+    "blocks": {
+      "14060646107696862457": {
+        "type": "shopify://apps/judge-me-reviews/blocks/judgeme_core/61ccd3b1-a9f2-4160-9fe9-4fec8413e5d8",
+        "disabled": false,
+        "settings": {}
+      }
     }
   },
   "presets": {
