@@ -65,13 +65,6 @@
                 <p class="product-subtitle">{{ product.type }}</p>
             {%- endif -%}
 
-            {% comment %} Judge.me star-rating preview — shows under title, links to reviews section {% endcomment %}
-            <div class="jdgm-widget jdgm-preview-badge product-rating-preview"
-                 data-id="{{ product.id }}"
-                 data-template="product">
-                {{ product.metafields.judgeme.badge }}
-            </div>
-
             <!-- Fabric badge — every Zarshah piece is Wash & Wear -->
             <div class="fabric-badge" aria-label="Fabric type">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -240,18 +233,50 @@
     </section>
     {%- endif -%}
 
-    {%- comment -%} =============== CUSTOMER REVIEWS (Judge.me) =============== {%- endcomment -%}
+    {%- comment -%} =============== CUSTOMER REVIEWS (localStorage fallback) =============== {%- endcomment -%}
     <section class="product-reviews" aria-labelledby="reviewsTitle">
         <h2 class="product-extras-title" id="reviewsTitle">Customer Reviews</h2>
 
-        {% comment %} Judge.me review widget — auto-injects star rating, review list, write-a-review form {% endcomment %}
-        <div id="judgeme_product_reviews"
-             class="jdgm-widget jdgm-review-widget"
-             data-id="{{ product.id }}"
-             data-product-title="{{ product.title | escape }}"
-             data-handle="{{ product.handle }}">
-            {{ product.metafields.judgeme.widget }}
+        <div class="reviews-summary">
+            <div class="reviews-summary-stars" id="reviewsAvgStars">★★★★★</div>
+            <span class="reviews-summary-text" id="reviewsAvgText">Be the first to leave a review</span>
         </div>
+
+        <div class="reviews-list" id="reviewsList" data-product-handle="{{ product.handle }}">
+            <!-- Reviews will be rendered here by JS -->
+        </div>
+
+        <button type="button" class="review-toggle-btn" id="reviewToggleBtn" aria-expanded="false">
+            <span class="review-toggle-text">Write a review</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+
+        <form class="review-form" id="reviewForm" novalidate>
+            <div class="review-field">
+                <label for="reviewName">Your name</label>
+                <input type="text" id="reviewName" name="name" required autocomplete="name">
+            </div>
+
+            <div class="review-field">
+                <label>Your rating</label>
+                <div class="star-picker" id="starPicker" role="radiogroup" aria-label="Rating">
+                    <button type="button" class="star-btn" data-rating="1" aria-label="1 star">★</button>
+                    <button type="button" class="star-btn" data-rating="2" aria-label="2 stars">★</button>
+                    <button type="button" class="star-btn" data-rating="3" aria-label="3 stars">★</button>
+                    <button type="button" class="star-btn" data-rating="4" aria-label="4 stars">★</button>
+                    <button type="button" class="star-btn" data-rating="5" aria-label="5 stars">★</button>
+                </div>
+            </div>
+
+            <div class="review-field">
+                <label for="reviewComment">Your review</label>
+                <textarea id="reviewComment" name="comment" rows="4" maxlength="500" placeholder="Share your experience with this product..." required></textarea>
+                <span class="review-counter"><span id="reviewCounter">0</span> / 500</span>
+            </div>
+
+            <button type="submit" class="review-submit">Submit Review</button>
+            <p class="review-success" id="reviewSuccess">Thank you! Your review has been added.</p>
+        </form>
     </section>
 </div>
 
@@ -410,6 +435,123 @@ function handleBuyNow() {
     });
 
     updateActive();
+})();
+
+// ========== CUSTOMER REVIEWS (localStorage-backed) ==========
+(function(){
+    var list = document.getElementById('reviewsList');
+    if (!list) return;
+    var handle = list.dataset.productHandle;
+    var KEY = 'zarshahReviews:' + handle;
+
+    var toggleBtn = document.getElementById('reviewToggleBtn');
+    var form      = document.getElementById('reviewForm');
+    var picker    = document.getElementById('starPicker');
+    var counter   = document.getElementById('reviewCounter');
+    var success   = document.getElementById('reviewSuccess');
+    var avgStars  = document.getElementById('reviewsAvgStars');
+    var avgText   = document.getElementById('reviewsAvgText');
+    var commentEl = document.getElementById('reviewComment');
+    var rating    = 0;
+
+    function load() {
+        try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch(e) { return []; }
+    }
+    function save(reviews) {
+        try { localStorage.setItem(KEY, JSON.stringify(reviews)); } catch(e) {}
+    }
+    function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, function(c){
+            return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];
+        });
+    }
+    function stars(n) {
+        var s = '';
+        for (var i = 1; i <= 5; i++) s += '<span class="' + (i <= n ? 'star-filled' : 'star-empty') + '">★</span>';
+        return s;
+    }
+    function timeAgo(ts) {
+        var diff = (Date.now() - ts) / 1000;
+        if (diff < 60) return 'just now';
+        if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+        if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+        if (diff < 2592000) return Math.floor(diff / 86400) + 'd ago';
+        return new Date(ts).toLocaleDateString();
+    }
+
+    function render() {
+        var reviews = load();
+        if (!reviews.length) {
+            list.innerHTML = '<p class="reviews-empty">No reviews yet — be the first to share your thoughts!</p>';
+            avgStars.innerHTML = stars(0);
+            avgText.textContent = 'Be the first to leave a review';
+            return;
+        }
+        var sum = reviews.reduce(function(a, r){ return a + r.rating; }, 0);
+        var avg = sum / reviews.length;
+        avgStars.innerHTML = stars(Math.round(avg));
+        avgText.textContent = avg.toFixed(1) + ' / 5  •  ' + reviews.length + ' review' + (reviews.length === 1 ? '' : 's');
+
+        list.innerHTML = reviews.slice().reverse().map(function(r){
+            return '<article class="review-card">'
+                + '<header class="review-card-head">'
+                +   '<span class="review-card-name">' + escapeHtml(r.name) + '</span>'
+                +   '<span class="review-card-stars">' + stars(r.rating) + '</span>'
+                + '</header>'
+                + '<p class="review-card-comment">' + escapeHtml(r.comment) + '</p>'
+                + '<time class="review-card-time">' + timeAgo(r.timestamp) + '</time>'
+                + '</article>';
+        }).join('');
+    }
+
+    if (picker) {
+        picker.querySelectorAll('.star-btn').forEach(function(btn){
+            btn.addEventListener('click', function(){
+                rating = parseInt(this.dataset.rating, 10);
+                picker.querySelectorAll('.star-btn').forEach(function(b, i){
+                    b.classList.toggle('is-active', i < rating);
+                });
+            });
+        });
+    }
+
+    if (commentEl && counter) {
+        commentEl.addEventListener('input', function(){
+            counter.textContent = this.value.length;
+        });
+    }
+
+    if (toggleBtn && form) {
+        toggleBtn.addEventListener('click', function(){
+            var open = form.classList.toggle('is-open');
+            this.setAttribute('aria-expanded', open ? 'true' : 'false');
+            this.classList.toggle('is-open', open);
+        });
+    }
+
+    if (form) {
+        form.addEventListener('submit', function(e){
+            e.preventDefault();
+            var name    = (document.getElementById('reviewName').value || '').trim();
+            var comment = (commentEl.value || '').trim();
+            if (!name || !comment || rating < 1) {
+                alert('Please fill in your name, rating, and review.');
+                return;
+            }
+            var reviews = load();
+            reviews.push({ name: name, rating: rating, comment: comment, timestamp: Date.now() });
+            save(reviews);
+            form.reset();
+            rating = 0;
+            picker.querySelectorAll('.star-btn').forEach(function(b){ b.classList.remove('is-active'); });
+            counter.textContent = '0';
+            success.classList.add('is-visible');
+            setTimeout(function(){ success.classList.remove('is-visible'); }, 3500);
+            render();
+        });
+    }
+
+    render();
 })();
 </script>
 <!-- Start of Judge.me code -->
