@@ -65,6 +65,13 @@
                 <p class="product-subtitle">{{ product.type }}</p>
             {%- endif -%}
 
+            {% comment %} Judge.me star-rating preview — shows under title, links to reviews section {% endcomment %}
+            <div class="jdgm-widget jdgm-preview-badge product-rating-preview"
+                 data-id="{{ product.id }}"
+                 data-template="product">
+                {{ product.metafields.judgeme.badge }}
+            </div>
+
             <!-- Fabric badge — every Zarshah piece is Wash & Wear -->
             <div class="fabric-badge" aria-label="Fabric type">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -100,11 +107,22 @@
 
             <p class="product-tax-note">Tax included. Shipping calculated at checkout.</p>
 
-            {%- if product.description != blank -%}
-                <div class="product-description">{{ product.description }}</div>
-            {%- endif -%}
-
             <form action="{{ routes.cart_add_url }}" method="post" enctype="multipart/form-data" id="productForm">
+                <input type="hidden" name="id" id="variantId" value="{{ current_variant.id }}">
+                <input type="hidden" name="quantity" id="qtyInputHidden" value="1">
+
+                {%- comment -%} Action buttons surface right under the price for fast checkout {%- endcomment -%}
+                <div class="product-actions">
+                    <button type="submit" name="add" class="btn-cart" {% unless current_variant.available %}disabled{% endunless %}>
+                        {%- if current_variant.available -%}ADD TO CART{%- else -%}SOLD OUT{%- endif -%}
+                    </button>
+                    <button type="button" class="btn-buy" onclick="handleBuyNow()" {% unless current_variant.available %}disabled{% endunless %}>BUY NOW</button>
+                </div>
+
+                {%- if product.description != blank -%}
+                    <div class="product-description">{{ product.description }}</div>
+                {%- endif -%}
+
                 {%- if product.has_only_default_variant == false -%}
                     <div class="product-specs">
                         <h3>Options</h3>
@@ -121,47 +139,13 @@
                     </div>
                 {%- endif -%}
 
-                <input type="hidden" name="id" id="variantId" value="{{ current_variant.id }}">
-
-                <div class="product-specs">
-                    <h3>Specifications</h3>
-                    <div class="spec-grid">
-                        <div class="spec-item"><span class="spec-label">Fabric</span><span class="spec-value">Wash &amp; Wear</span></div>
-                        {%- if product.type != blank -%}
-                            <div class="spec-item"><span class="spec-label">Type</span><span class="spec-value">{{ product.type }}</span></div>
-                        {%- endif -%}
-                        {%- if product.metafields.specs.weight != blank -%}
-                            <div class="spec-item"><span class="spec-label">Weight</span><span class="spec-value">{{ product.metafields.specs.weight }}</span></div>
-                        {%- endif -%}
-                        {%- if product.metafields.specs.length != blank -%}
-                            <div class="spec-item"><span class="spec-label">Length</span><span class="spec-value">{{ product.metafields.specs.length }}</span></div>
-                        {%- endif -%}
-                        {%- if product.metafields.specs.color != blank -%}
-                            <div class="spec-item"><span class="spec-label">Color</span><span class="spec-value">{{ product.metafields.specs.color }}</span></div>
-                        {%- endif -%}
-                        {%- if product.metafields.specs.season != blank -%}
-                            <div class="spec-item"><span class="spec-label">Season</span><span class="spec-value">{{ product.metafields.specs.season }}</span></div>
-                        {%- endif -%}
-                        {%- if product.metafields.specs.care != blank -%}
-                            <div class="spec-item"><span class="spec-label">Care</span><span class="spec-value">{{ product.metafields.specs.care }}</span></div>
-                        {%- endif -%}
-                    </div>
-                </div>
-
                 <div class="product-qty-row">
                     <span class="qty-label">Quantity</span>
                     <div class="qty-selector">
                         <button type="button" class="qty-btn" onclick="qtyDecrease()">&minus;</button>
-                        <input type="number" name="quantity" id="qtyInput" class="qty-input" value="1" min="1">
+                        <input type="number" id="qtyInput" class="qty-input" value="1" min="1" aria-label="Quantity">
                         <button type="button" class="qty-btn" onclick="qtyIncrease()">+</button>
                     </div>
-                </div>
-
-                <div class="product-actions">
-                    <button type="submit" name="add" class="btn-cart" {% unless current_variant.available %}disabled{% endunless %}>
-                        {%- if current_variant.available -%}ADD TO CART{%- else -%}SOLD OUT{%- endif -%}
-                    </button>
-                    <button type="button" class="btn-buy" onclick="handleBuyNow()" {% unless current_variant.available %}disabled{% endunless %}>BUY NOW</button>
                 </div>
             </form>
 
@@ -173,19 +157,129 @@
             </div>
         </div>
     </div>
+
+    {%- comment -%} Build a related-products list from the product's first collection (or fallback) {%- endcomment -%}
+    {%- assign current_collection = product.collections.first -%}
+    {%- if current_collection == blank -%}
+        {%- assign current_collection = collections.all -%}
+    {%- endif -%}
+
+    {%- comment -%} =============== YOU MAY ALSO LIKE =============== {%- endcomment -%}
+    <section class="product-related" aria-labelledby="relatedTitle">
+        <h2 class="product-extras-title" id="relatedTitle">You May Also Like</h2>
+        <div class="product-related-grid">
+            {%- assign related_count = 0 -%}
+            {%- for p in current_collection.products -%}
+                {%- if p.id != product.id and related_count < 8 -%}
+                    {% render 'product-card', product: p %}
+                    {%- assign related_count = related_count | plus: 1 -%}
+                {%- endif -%}
+            {%- endfor -%}
+        </div>
+    </section>
+
+    {%- comment -%} =============== FREQUENTLY BOUGHT TOGETHER =============== {%- endcomment -%}
+    {%- assign fbt_picks = '' -%}
+    {%- assign fbt_count = 0 -%}
+    {%- for p in current_collection.products -%}
+        {%- if p.id != product.id and fbt_count < 2 -%}
+            {%- assign fbt_picks = fbt_picks | append: p.id | append: ',' -%}
+            {%- assign fbt_count = fbt_count | plus: 1 -%}
+        {%- endif -%}
+    {%- endfor -%}
+
+    {%- if fbt_count > 0 -%}
+    <section class="product-fbt" aria-labelledby="fbtTitle">
+        <h2 class="product-extras-title" id="fbtTitle">Frequently Bought Together</h2>
+        <div class="fbt-row">
+            <div class="fbt-card fbt-card--current">
+                <div class="fbt-card-img">
+                    {%- if product.featured_image -%}
+                        <img src="{{ product.featured_image | image_url: width: 300 }}" alt="{{ product.title | escape }}" loading="lazy">
+                    {%- endif -%}
+                </div>
+                <div class="fbt-card-info">
+                    <span class="fbt-card-tag">This item</span>
+                    <p class="fbt-card-name">{{ product.title }}</p>
+                    <p class="fbt-card-price">{{ product.price | money }}</p>
+                </div>
+            </div>
+
+            {%- assign fbt_total_cents = product.price -%}
+            {%- assign fbt_variant_ids = product.selected_or_first_available_variant.id | append: ',' -%}
+
+            {%- for p in current_collection.products -%}
+                {%- if p.id != product.id and forloop.index <= 3 -%}
+                    {%- assign fbt_total_cents = fbt_total_cents | plus: p.price -%}
+                    {%- assign fbt_variant_ids = fbt_variant_ids | append: p.selected_or_first_available_variant.id | append: ',' -%}
+                    <span class="fbt-plus" aria-hidden="true">+</span>
+                    <a href="{{ p.url }}" class="fbt-card">
+                        <div class="fbt-card-img">
+                            {%- if p.featured_image -%}
+                                <img src="{{ p.featured_image | image_url: width: 300 }}" alt="{{ p.title | escape }}" loading="lazy">
+                            {%- endif -%}
+                        </div>
+                        <div class="fbt-card-info">
+                            <p class="fbt-card-name">{{ p.title }}</p>
+                            <p class="fbt-card-price">{{ p.price | money }}</p>
+                        </div>
+                    </a>
+                {%- endif -%}
+            {%- endfor -%}
+        </div>
+
+        <div class="fbt-summary">
+            <div class="fbt-total">
+                <span class="fbt-total-label">Bundle total:</span>
+                <span class="fbt-total-price">{{ fbt_total_cents | money }}</span>
+            </div>
+            <button type="button" class="fbt-cta" id="fbtAddBundle" data-variants="{{ fbt_variant_ids | rstrip: ',' }}">
+                Add bundle to cart
+            </button>
+        </div>
+    </section>
+    {%- endif -%}
+
+    {%- comment -%} =============== CUSTOMER REVIEWS (Judge.me) =============== {%- endcomment -%}
+    <section class="product-reviews" aria-labelledby="reviewsTitle">
+        <h2 class="product-extras-title" id="reviewsTitle">Customer Reviews</h2>
+
+        {% comment %} Judge.me review widget — auto-injects star rating, review list, write-a-review form {% endcomment %}
+        <div id="judgeme_product_reviews"
+             class="jdgm-widget jdgm-review-widget"
+             data-id="{{ product.id }}"
+             data-product-title="{{ product.title | escape }}"
+             data-handle="{{ product.handle }}">
+            {{ product.metafields.judgeme.widget }}
+        </div>
+    </section>
 </div>
 
 <script>
 var PRODUCT_VARIANTS = {{ product.variants | json }};
 
+function syncQty(value) {
+    var hidden = document.getElementById('qtyInputHidden');
+    if (hidden) hidden.value = value;
+}
 function qtyDecrease() {
     var input = document.getElementById('qtyInput');
     input.value = Math.max(1, parseInt(input.value || 1) - 1);
+    syncQty(input.value);
 }
 function qtyIncrease() {
     var input = document.getElementById('qtyInput');
     input.value = parseInt(input.value || 1) + 1;
+    syncQty(input.value);
 }
+document.addEventListener('DOMContentLoaded', function(){
+    var input = document.getElementById('qtyInput');
+    if (input) {
+        input.addEventListener('input', function(){
+            syncQty(Math.max(1, parseInt(this.value || 1)));
+        });
+    }
+});
 
 function updateVariant() {
     var form = document.getElementById('productForm');
@@ -225,6 +319,35 @@ function handleBuyNow() {
         .then(function(){ window.location.href = '/checkout'; })
         .catch(function(){ form.submit(); });
 }
+
+// ========== FREQUENTLY BOUGHT TOGETHER — Add bundle to cart ==========
+(function(){
+    var btn = document.getElementById('fbtAddBundle');
+    if (!btn) return;
+    btn.addEventListener('click', function(){
+        var ids = (btn.dataset.variants || '').split(',').filter(Boolean);
+        if (!ids.length) return;
+        btn.disabled = true;
+        btn.textContent = 'Adding…';
+        var items = ids.map(function(id){ return { id: parseInt(id, 10), quantity: 1 }; });
+        fetch('/cart/add.js', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({ items: items })
+        })
+        .then(function(r){ return r.json(); })
+        .then(function(){
+            btn.textContent = 'Added! View cart →';
+            btn.classList.add('fbt-cta--success');
+            setTimeout(function(){ window.location.href = '/cart'; }, 700);
+        })
+        .catch(function(){
+            btn.disabled = false;
+            btn.textContent = 'Try again';
+        });
+    });
+})();
+
 
 // ========== PRODUCT GALLERY (swipeable) ==========
 (function(){
