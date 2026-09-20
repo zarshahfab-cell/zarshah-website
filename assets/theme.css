@@ -6291,6 +6291,177 @@ body.mobile-menu-open {
     overflow: hidden;
 }
 
+/* ======================================================================== */
+/* === MOBILE FLOATS CLEANUP — hide IG/FB/theme so content isn't covered === */
+/* (They're already reachable via hamburger menu + footer.)                  */
+/* ======================================================================== */
+@media (max-width: 900px) {
+    .instagram-float,
+    .facebook-float,
+    .theme-toggle {
+        display: none !important;
+    }
+
+    /* Make WhatsApp tighter so it doesn't cover content */
+    .whatsapp-float {
+        width: 48px !important;
+        height: 48px !important;
+        bottom: 16px !important;
+        right: 16px !important;
+    }
+    .whatsapp-float svg {
+        width: 24px !important;
+        height: 24px !important;
+    }
+
+    /* Discount pill — keep but smaller */
+    .discount-pill {
+        bottom: 14px;
+        left: 14px;
+        font-size: 0.72rem;
+        padding: 7px 11px 7px 13px;
+    }
+}
+
+/* ============================================================ */
+/* === GLOBAL MOBILE OVERFLOW SAFETY (≤ 900px / phones)        === */
+/* Fixes content getting cut off on the right side; equal       */
+/* left/right padding everywhere; no element overflows viewport */
+/* ============================================================ */
+@media (max-width: 900px) {
+    /* Hard-cap viewport width on the document */
+    html, body {
+        max-width: 100vw;
+        overflow-x: hidden !important;
+    }
+    body * {
+        max-width: 100vw;
+    }
+    .page-wrapper {
+        overflow-x: hidden;
+        max-width: 100vw;
+    }
+
+    /* Universal containers: equal padding both sides */
+    .product-wrap,
+    .product-related,
+    .product-fbt,
+    .product-reviews,
+    .collection-section,
+    .collection-layout,
+    .contact-wrap,
+    .legal-wrap,
+    .cart-wrap,
+    .cart-page,
+    .page-wrap,
+    main > section {
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+        margin-left: auto;
+        margin-right: auto;
+        max-width: 100vw;
+        box-sizing: border-box;
+    }
+
+    /* Don't let inline styles override that on contact-form/cards */
+    .contact-info-card,
+    .contact-form-card {
+        padding: 24px !important;
+        max-width: 100% !important;
+        box-sizing: border-box;
+    }
+
+    /* Make sure every product-page container respects viewport */
+    .product-wrap,
+    .product-container,
+    .product-details,
+    .product-images,
+    .product-gallery,
+    .product-related,
+    .product-related-grid,
+    .product-fbt,
+    .fbt-row,
+    .fbt-summary,
+    .product-reviews,
+    .reviews-list,
+    .review-card,
+    .review-form {
+        max-width: 100% !important;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* Equal left/right padding on the page wrap */
+    .product-wrap {
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+        margin: 0 auto;
+    }
+
+    /* Inner sections shouldn't add extra horizontal padding (already inside product-wrap) */
+    .product-related,
+    .product-fbt,
+    .product-reviews {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    /* Long words must wrap, not get clipped */
+    .product-description,
+    .product-title,
+    .product-subtitle,
+    .fabric-badge,
+    .stock-urgency-text,
+    .review-card-comment,
+    .fbt-card-name,
+    .pc-name {
+        word-break: break-word;
+        overflow-wrap: break-word;
+        max-width: 100%;
+    }
+
+    /* Buttons full width without overflow */
+    .btn-cart,
+    .btn-buy,
+    .fbt-cta,
+    .review-submit,
+    .review-toggle-btn {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* Trust card edges shouldn't overflow */
+    .product-trust,
+    .product-actions {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* Fabric badge — wrap long fabric names instead of stretching */
+    .fabric-badge {
+        max-width: 100%;
+        flex-wrap: wrap;
+        white-space: normal;
+    }
+
+    /* Spec grid never goes wider than parent */
+    .spec-grid {
+        max-width: 100%;
+    }
+
+    /* Gallery slides are fixed width = 100% of gallery; gallery clips overflow */
+    .product-gallery {
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+    }
+    .product-slide {
+        max-width: 100%;
+    }
+    .product-slide img {
+        max-width: 100%;
+    }
+}
+
 /* ===== Hide hCaptcha "Protected by" badge =====
  * hCaptcha allows hiding the badge if attribution is added in the Privacy Policy.
  * (This site is protected by hCaptcha — text added to /policies/privacy-policy.) */
