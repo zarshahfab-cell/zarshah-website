@@ -1,13 +1,30 @@
-<div class="announcement-bar">
+{%- comment -%}
+  The sale message counts down to a real end date ("Sale ends", Pakistan time) and never restarts.
+  More than a day out it shows the date, in the last 24 hours it counts down, and afterwards only the
+  shipping message stays. The class is set here so the right state shows before theme.js runs.
+{%- endcomment -%}
+{%- liquid
+  assign sale_end = section.settings.sale_end | strip
+  assign sale_class = ' is-no-sale'
+  if sale_end != blank
+    assign end_s = sale_end | append: ' +0500' | date: '%s' | plus: 0
+    assign now_s = 'now' | date: '%s' | plus: 0
+    if end_s > now_s
+      assign sale_class = ' is-sale-date'
+    endif
+  endif
+-%}
+<div class="announcement-bar{{ sale_class }}" data-sale-end="{{ sale_end | escape }}">
   <div class="announce-track">
     {%- for i in (1..6) -%}
       <div class="announce-group" {% unless i == 1 %}aria-hidden="true"{% endunless %}>
-        <span class="announce-item">
+        <span class="announce-item announce-sale">
           <svg class="announce-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <circle cx="12" cy="12" r="9"/>
             <polyline points="12,7 12,12 15.5,14"/>
           </svg>
-          {{ section.settings.prefix | default: 'SALE ENDS IN' }}
+          <span class="announce-label-countdown">{{ section.settings.prefix | default: 'SALE ENDS IN' }}</span>
+          <span class="announce-date">{{ section.settings.date_prefix | default: 'YEAR END SALE · ENDS' }} {{ sale_end | date: '%-d %b' | upcase }}</span>
         </span>
         <div class="announce-countdown">
           <span class="announce-countdown-box ann-h">23</span>
@@ -16,7 +33,7 @@
           <span class="announce-countdown-sep">:</span>
           <span class="announce-countdown-box ann-s">59</span>
         </div>
-        <span class="announce-item">&mdash; {{ section.settings.suffix | default: 'FREE SHIPPING OVER RS 3,000' }}</span>
+        <span class="announce-item"><span class="announce-dash">&mdash; </span>{{ section.settings.suffix | default: 'FREE SHIPPING OVER RS 3,000' }}</span>
         <span class="announce-dot" aria-hidden="true">&bull;</span>
       </div>
     {%- endfor -%}
@@ -27,7 +44,9 @@
 {
   "name": "Announcement Bar",
   "settings": [
-    { "type": "text", "id": "prefix", "label": "Prefix text", "default": "SALE ENDS IN" },
+    { "type": "text", "id": "sale_end", "label": "Sale ends (Pakistan time)", "info": "Format: 2026-12-31 23:59. Before the last day the bar shows the end date, in the last 24 hours it counts down, and afterwards the sale message hides. Leave empty when no sale is running.", "default": "2026-12-31 23:59" },
+    { "type": "text", "id": "date_prefix", "label": "Text before the end date", "default": "YEAR END SALE · ENDS" },
+    { "type": "text", "id": "prefix", "label": "Text before the countdown (last 24 hours)", "default": "SALE ENDS IN" },
     { "type": "text", "id": "suffix", "label": "Suffix text", "default": "FREE SHIPPING OVER RS 3,000" },
     { "type": "range", "id": "speed", "label": "Scroll speed (seconds per loop)", "min": 15, "max": 60, "step": 5, "default": 30 }
   ]

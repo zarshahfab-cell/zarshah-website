@@ -32,6 +32,16 @@
 
                 <div class="contact-info-item" style="display: flex; align-items: flex-start; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--card-border);">
                     <div class="contact-info-icon" style="flex-shrink: 0; width: 40px; height: 40px; background: rgba(201, 168, 76, 0.1); border: 1px solid rgba(201, 168, 76, 0.3); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--gold);">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3 20.5l1.6-5.4A8.4 8.4 0 1 1 21 11.5z"/></svg>
+                    </div>
+                    <div class="contact-info-content">
+                        <h4 style="font-size: 0.8rem; color: var(--subtitle); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px;">WhatsApp</h4>
+                        <a href="https://wa.me/{{ settings.whatsapp_number | default: '923113638999' }}?text={{ 'Assalam o Alaikum! I have a question about Zarshah fabric.' | url_encode }}" target="_blank" rel="noopener" style="font-size: 0.95rem; color: var(--text);">Chat with us on WhatsApp</a>
+                    </div>
+                </div>
+
+                <div class="contact-info-item" style="display: flex; align-items: flex-start; gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--card-border);">
+                    <div class="contact-info-icon" style="flex-shrink: 0; width: 40px; height: 40px; background: rgba(201, 168, 76, 0.1); border: 1px solid rgba(201, 168, 76, 0.3); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--gold);">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                     </div>
                     <div class="contact-info-content">

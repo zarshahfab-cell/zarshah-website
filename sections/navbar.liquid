@@ -1,12 +1,13 @@
 <nav class="navbar">
     <div class="navbar-inner">
         <a href="{{ routes.root_url }}" class="nav-logo">
-            <img src="{{ 'top-web-image.png' | asset_url }}" alt="Zarshah" class="nav-logo-img">
-            <img src="{{ 'brand-name.png' | asset_url }}" alt="ZARSHAH &mdash; Premium Men's Wear" class="nav-brand-name">
+            <img src="{{ 'logo-mark-180.webp' | asset_url }}" alt="Zarshah" class="nav-logo-img" width="166" height="180">
+            <img src="{{ 'brand-name-140h.webp' | asset_url }}" alt="ZARSHAH &mdash; Premium Men's Wear" class="nav-brand-name" width="552" height="140">
         </a>
 
         <div class="nav-links">
             <a href="{{ routes.root_url }}" class="nav-link{% if template == 'index' %} is-active{% endif %}" style="font-weight: 600; letter-spacing: 2px; font-size: 0.85rem;">HOME</a>
+            <a href="{{ routes.all_products_collection_url }}" class="nav-link{% if template contains 'collection' or template contains 'search' %} is-active{% endif %}" style="font-weight: 600; letter-spacing: 2px; font-size: 0.85rem;">SHOP</a>
             <a href="/pages/contact" class="nav-link{% if template contains 'contact' %} is-active{% endif %}" style="font-weight: 600; letter-spacing: 2px; font-size: 0.85rem;">CONTACT</a>
             <a href="{{ routes.cart_url }}" class="nav-link nav-cart" aria-label="Cart">
                 <svg class="nav-cart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -43,6 +44,15 @@
             <span>Home</span>
         </a>
 
+        <a href="{{ routes.all_products_collection_url }}" class="mobile-menu-link{% if template contains 'collection' or template contains 'search' %} is-active{% endif %}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                <line x1="3" y1="6" x2="21" y2="6"/>
+                <path d="M16 10a4 4 0 0 1-8 0"/>
+            </svg>
+            <span>Shop all fabrics</span>
+        </a>
+
         <a href="/pages/contact" class="mobile-menu-link{% if template contains 'contact' %} is-active{% endif %}">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                 <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
@@ -59,6 +69,19 @@
             <span>Cart</span>
             <span class="mobile-menu-badge {% if cart.item_count == 0 %}is-empty{% endif %}" id="mobileMenuCartCount">{{ cart.item_count }}</span>
         </a>
+
+        {%- comment -%} Light/dark switch — the floating toggle is hidden on phones {%- endcomment -%}
+        <button type="button" class="mobile-menu-theme" id="mobileThemeToggle" onclick="toggleTheme()" aria-pressed="false">
+            <svg class="mobile-menu-theme-icon mobile-menu-theme-icon--sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="4.5"/>
+                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/>
+            </svg>
+            <svg class="mobile-menu-theme-icon mobile-menu-theme-icon--moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+            <span class="mobile-menu-theme-label mobile-menu-theme-label--light">Light mode</span>
+            <span class="mobile-menu-theme-label mobile-menu-theme-label--dark">Dark mode</span>
+        </button>
     </nav>
 
     <div class="mobile-menu-footer">

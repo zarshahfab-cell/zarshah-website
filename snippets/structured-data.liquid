@@ -1,0 +1,235 @@
+{%- comment -%}
+  Structured data (JSON-LD) for Google: the store and site name on the homepage, Product + Offer and
+  breadcrumbs on product pages, breadcrumbs on collections. Only facts the store actually publishes are
+  included: the return policy goes in only once a Refund policy exists (Settings → Policies), and
+  delivery times only once they are filled in under Theme settings → SEO & sharing.
+{%- endcomment -%}
+{%- liquid
+  assign site_url = request.origin | append: '/'
+  assign free_from = settings.free_shipping_threshold | default: 0 | times: 100
+  assign has_returns = false
+  if shop.refund_policy != blank and settings.return_days > 0
+    assign has_returns = true
+  endif
+  assign has_delivery = false
+  if settings.handling_days != blank and settings.delivery_days_min != blank and settings.delivery_days_max != blank
+    assign has_delivery = true
+  endif
+-%}
+{%- capture return_policy -%}
+  {
+    "@type": "MerchantReturnPolicy",
+    "applicableCountry": "PK",
+    "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+    "merchantReturnDays": {{ settings.return_days | json }},
+    "returnMethod": "https://schema.org/ReturnByMail"
+    {%- if settings.return_fees == 'free' -%},
+    "returnFees": "https://schema.org/FreeReturn"
+    {%- elsif settings.return_fees == 'customer' -%},
+    "returnFees": "https://schema.org/ReturnFeesCustomerResponsibility"
+    {%- endif %},
+    "merchantReturnLink": {{ shop.refund_policy.url | prepend: request.origin | json }}
+  }
+{%- endcapture -%}
+
+{%- if request.page_type == 'index' -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "OnlineStore",
+      "@id": {{ site_url | append: '#organization' | json }},
+      "name": {{ shop.name | json }},
+      "url": {{ site_url | json }},
+      "logo": {{ 'logo-mark-180.webp' | asset_url | prepend: 'https:' | json }},
+      {%- if settings.seo_home_description != blank %}
+      "description": {{ settings.seo_home_description | strip_html | strip_newlines | json }},
+      {%- endif %}
+      {%- if settings.email != blank %}
+      "email": {{ settings.email | json }},
+      {%- endif %}
+      {%- if settings.phone != blank %}
+      "telephone": {{ settings.phone | json }},
+      {%- endif %}
+      "address": {
+        "@type": "PostalAddress",
+        {%- if settings.business_city != blank %}
+        "addressLocality": {{ settings.business_city | json }},
+        {%- endif %}
+        "addressCountry": "PK"
+      },
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "customer service",
+        {%- if settings.phone != blank %}
+        "telephone": {{ settings.phone | json }},
+        {%- endif %}
+        {%- if settings.email != blank %}
+        "email": {{ settings.email | json }},
+        {%- endif %}
+        "areaServed": "PK",
+        "availableLanguage": ["en", "ur"]
+      },
+      "sameAs": [
+        {%- assign same_as = '' -%}
+        {%- if settings.instagram_url != blank -%}{%- assign same_as = same_as | append: settings.instagram_url | append: '|' -%}{%- endif -%}
+        {%- if settings.facebook_url != blank -%}{%- assign same_as = same_as | append: settings.facebook_url | append: '|' -%}{%- endif -%}
+        {%- assign same_as = same_as | split: '|' -%}
+        {%- for link in same_as -%}{{ link | json }}{%- unless forloop.last -%},{%- endunless -%}{%- endfor -%}
+      ]
+      {%- if has_returns -%},
+      "hasMerchantReturnPolicy": {{ return_policy }}
+      {%- endif %}
+    },
+    {
+      "@type": "WebSite",
+      "@id": {{ site_url | append: '#website' | json }},
+      "name": {{ shop.name | json }},
+      "url": {{ site_url | json }},
+      "publisher": { "@id": {{ site_url | append: '#organization' | json }} },
+      "inLanguage": "en-PK",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          {%- comment -%} Built in a tag: a brace inside an output tag ends it early {%- endcomment -%}
+          {%- assign search_target = routes.search_url | prepend: request.origin | append: '?q={search_term_string}' %}
+          "urlTemplate": {{ search_target | json }}
+        },
+        "query-input": "required name=search_term_string"
+      }
+    }
+  ]
+}
+</script>
+{%- endif -%}
+
+{%- if request.page_type == 'product' -%}
+{%- liquid
+  assign v = product.selected_or_first_available_variant
+  assign product_url = request.origin | append: product.url
+  assign colour = ''
+  if product.title contains '—'
+    assign colour = product.title | split: '—' | last | strip
+  endif
+  assign crumb_collection = collection | default: product.collections.first
+-%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Product",
+      "@id": {{ product_url | append: '#product' | json }},
+      "name": {{ product.title | json }},
+      "url": {{ product_url | json }},
+      "description": {{ product.description | strip_html | strip_newlines | strip | truncate: 4900 | json }},
+      "image": [
+        {%- for image in product.images limit: 8 -%}
+          {{ image | image_url: width: 1600 | prepend: 'https:' | json }}{%- unless forloop.last -%},{%- endunless -%}
+        {%- endfor -%}
+      ],
+      {%- if v.sku != blank %}
+      "sku": {{ v.sku | json }},
+      {%- endif %}
+      {%- if v.barcode != blank %}
+      "gtin": {{ v.barcode | json }},
+      {%- endif %}
+      {%- if colour != blank %}
+      "color": {{ colour | json }},
+      {%- endif %}
+      {%- if product.type != blank %}
+      "category": {{ product.type | json }},
+      {%- endif %}
+      "brand": { "@type": "Brand", "name": {{ product.vendor | default: shop.name | json }} },
+      "offers": {
+        "@type": "Offer",
+        "url": {{ product_url | append: '?variant=' | append: v.id | json }},
+        "priceCurrency": {{ cart.currency.iso_code | json }},
+        "price": {{ v.price | divided_by: 100.0 }},
+        "availability": "https://schema.org/{% if v.available %}InStock{% else %}OutOfStock{% endif %}",
+        "itemCondition": "https://schema.org/NewCondition",
+        "seller": { "@type": "Organization", "name": {{ shop.name | json }} }
+        {%- if free_from > 0 and v.price >= free_from -%},
+        "shippingDetails": {
+          "@type": "OfferShippingDetails",
+          "shippingRate": { "@type": "MonetaryAmount", "value": 0, "currency": {{ cart.currency.iso_code | json }} },
+          "shippingDestination": { "@type": "DefinedRegion", "addressCountry": "PK" }
+          {%- if has_delivery -%},
+          "deliveryTime": {
+            "@type": "ShippingDeliveryTime",
+            "handlingTime": { "@type": "QuantitativeValue", "minValue": 0, "maxValue": {{ settings.handling_days | json }}, "unitCode": "DAY" },
+            "transitTime": { "@type": "QuantitativeValue", "minValue": {{ settings.delivery_days_min | json }}, "maxValue": {{ settings.delivery_days_max | json }}, "unitCode": "DAY" }
+          }
+          {%- endif %}
+        }
+        {%- endif -%}
+        {%- if has_returns -%},
+        "hasMerchantReturnPolicy": {{ return_policy }}
+        {%- endif %}
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": {{ site_url | json }} },
+        {%- if crumb_collection != blank and crumb_collection.handle != 'frontpage' %}
+        { "@type": "ListItem", "position": 2, "name": {{ crumb_collection.title | json }}, "item": {{ crumb_collection.url | prepend: request.origin | json }} },
+        { "@type": "ListItem", "position": 3, "name": {{ product.title | json }}, "item": {{ product_url | json }} }
+        {%- else %}
+        { "@type": "ListItem", "position": 2, "name": "All products", "item": {{ routes.all_products_collection_url | prepend: request.origin | json }} },
+        { "@type": "ListItem", "position": 3, "name": {{ product.title | json }}, "item": {{ product_url | json }} }
+        {%- endif %}
+      ]
+    }
+  ]
+}
+</script>
+{%- endif -%}
+
+{%- if request.page_type == 'article' -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BlogPosting",
+      "@id": {{ request.origin | append: article.url | append: '#article' | json }},
+      "headline": {{ article.title | truncate: 110 | json }},
+      "url": {{ request.origin | append: article.url | json }},
+      "datePublished": {{ article.published_at | date: '%Y-%m-%dT%H:%M:%S%z' | json }},
+      "dateModified": {{ article.updated_at | default: article.published_at | date: '%Y-%m-%dT%H:%M:%S%z' | json }},
+      {%- if article.image %}
+      "image": [{{ article.image | image_url: width: 1200 | prepend: 'https:' | json }}],
+      {%- endif %}
+      "description": {{ article.excerpt_or_content | strip_html | strip_newlines | strip | truncate: 300 | json }},
+      "author": { "@type": "Organization", "name": {{ shop.name | json }}, "url": {{ request.origin | append: '/' | json }} },
+      "publisher": { "@type": "Organization", "name": {{ shop.name | json }}, "logo": { "@type": "ImageObject", "url": {{ 'logo-mark-180.webp' | asset_url | prepend: 'https:' | json }} } },
+      "mainEntityOfPage": {{ request.origin | append: article.url | json }}
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Home", "item": {{ request.origin | append: '/' | json }} },
+        { "@type": "ListItem", "position": 2, "name": {{ blog.title | json }}, "item": {{ request.origin | append: blog.url | json }} },
+        { "@type": "ListItem", "position": 3, "name": {{ article.title | json }}, "item": {{ request.origin | append: article.url | json }} }
+      ]
+    }
+  ]
+}
+</script>
+{%- endif -%}
+
+{%- if request.page_type == 'collection' -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": {{ site_url | json }} },
+    { "@type": "ListItem", "position": 2, "name": {{ collection.title | json }}, "item": {{ collection.url | prepend: request.origin | json }} }
+  ]
+}
+</script>
+{%- endif -%}

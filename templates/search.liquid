@@ -1,0 +1,50 @@
+{%- comment -%}
+    Search results. Uses the collection page layout + product cards so it matches the rest of the store.
+    (Without this template Shopify fell back to an unstyled page.)
+{%- endcomment -%}
+{%- paginate search.results by 24 -%}
+<section class="collection-section search-section">
+    <div class="collection-layout">
+        <div class="collection-intro">
+            <h1>Search</h1>
+            <form action="{{ routes.search_url }}" method="get" role="search" class="search-form">
+                <label for="SearchInput" class="search-label">Search our fabrics</label>
+                <input type="search" id="SearchInput" name="q" value="{{ search.terms | escape }}" placeholder="Search fabrics, e.g. twill" class="search-input" autocomplete="off">
+                <input type="hidden" name="type" value="product">
+                <button type="submit" class="search-submit">Search</button>
+            </form>
+            {%- if search.performed -%}
+                <p class="search-summary">
+                    {{ search.results_count }} {% if search.results_count == 1 %}result{% else %}results{% endif %} for &ldquo;{{ search.terms | escape }}&rdquo;
+                </p>
+            {%- endif -%}
+        </div>
+
+        <div class="collection-grid">
+            {%- if search.performed -%}
+                {%- for item in search.results -%}
+                    {%- if item.object_type == 'product' -%}
+                        {% render 'product-card', product: item %}
+                    {%- endif -%}
+                {%- else -%}
+                    <div class="search-empty">
+                        No fabrics matched your search. Try another word, or
+                        <a href="{{ routes.all_products_collection_url }}">browse the full collection</a>.
+                    </div>
+                {%- endfor -%}
+            {%- else -%}
+                {%- for product in collections.all.products limit: 12 -%}
+                    {% render 'product-card', product: product %}
+                {%- endfor -%}
+            {%- endif -%}
+
+            {%- if paginate.pages > 1 -%}
+                <div class="search-pagination">
+                    {%- if paginate.previous -%}<a href="{{ paginate.previous.url }}" class="collection-cta">&larr; Prev</a>{%- endif -%}
+                    {%- if paginate.next -%}<a href="{{ paginate.next.url }}" class="collection-cta">Next &rarr;</a>{%- endif -%}
+                </div>
+            {%- endif -%}
+        </div>
+    </div>
+</section>
+{%- endpaginate -%}

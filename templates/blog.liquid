@@ -1,0 +1,51 @@
+{%- comment -%}
+    Blog listing (e.g. /blogs/news). The theme had no blog template, so blog URLs returned 404.
+    Uses the collection layout: the intro on the left (top on phones), article cards beside it.
+{%- endcomment -%}
+{%- paginate blog.articles by 12 -%}
+<section class="collection-section blog-section">
+    <div class="collection-layout">
+        <div class="collection-intro">
+            <h1>{{ blog.title }}</h1>
+            <p>Fabric guides, tailoring tips and outfit ideas from Zarshah.</p>
+            <a href="{{ routes.all_products_collection_url }}" class="collection-cta">Shop all fabrics &rarr;</a>
+        </div>
+
+        <div class="blog-grid">
+            {%- for article in blog.articles -%}
+                <article class="blog-card">
+                    <a href="{{ article.url }}" class="blog-card-link">
+                        {%- if article.image -%}
+                            <div class="blog-card-img">
+                                <img src="{{ article.image | image_url: width: 720 }}"
+                                     srcset="{{ article.image | image_url: width: 480 }} 480w, {{ article.image | image_url: width: 720 }} 720w, {{ article.image | image_url: width: 1000 }} 1000w"
+                                     sizes="(max-width: 640px) calc(100vw - 32px), (max-width: 1024px) 45vw, 460px"
+                                     alt="{{ article.image.alt | default: article.title | escape }}"
+                                     loading="lazy" width="{{ article.image.width }}" height="{{ article.image.height }}">
+                            </div>
+                        {%- endif -%}
+                        <div class="blog-card-body">
+                            <p class="blog-card-meta"><time datetime="{{ article.published_at | date: '%Y-%m-%d' }}">{{ article.published_at | date: '%-d %B %Y' }}</time></p>
+                            <h2 class="blog-card-title">{{ article.title }}</h2>
+                            <p class="blog-card-excerpt">{{ article.excerpt_or_content | strip_html | truncatewords: 28 }}</p>
+                            <span class="blog-card-more">Read the guide &rarr;</span>
+                        </div>
+                    </a>
+                </article>
+            {%- else -%}
+                <div class="search-empty">
+                    Our first fabric guides are on the way. Meanwhile,
+                    <a href="{{ routes.all_products_collection_url }}">browse the collection</a>.
+                </div>
+            {%- endfor -%}
+
+            {%- if paginate.pages > 1 -%}
+                <div class="search-pagination">
+                    {%- if paginate.previous -%}<a href="{{ paginate.previous.url }}" class="collection-cta">&larr; Newer</a>{%- endif -%}
+                    {%- if paginate.next -%}<a href="{{ paginate.next.url }}" class="collection-cta">Older &rarr;</a>{%- endif -%}
+                </div>
+            {%- endif -%}
+        </div>
+    </div>
+</section>
+{%- endpaginate -%}

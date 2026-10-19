@@ -1,0 +1,63 @@
+{%- comment -%}
+  Link previews (WhatsApp, Facebook, Instagram DMs, X) and the share image for every page.
+  WhatsApp uses the first og:image it finds, so this light version comes before the full-size PNG
+  that Shopify adds to product pages on its own.
+{%- endcomment -%}
+{%- liquid
+  assign og_title = page_title | default: shop.name
+  if request.page_type == 'index' and page_title == shop.name and settings.seo_home_title != blank
+    assign og_title = settings.seo_home_title
+  endif
+  assign og_description = page_description | default: settings.seo_home_description | default: shop.description | strip_html | strip_newlines | escape_once
+  assign og_type = 'website'
+  case request.page_type
+    when 'product'
+      assign og_type = 'product'
+    when 'article'
+      assign og_type = 'article'
+  endcase
+
+  assign og_image = page_image
+  if og_image == blank
+    assign og_image = settings.share_image
+  endif
+  if og_image == blank
+    assign og_image = collections.all.products.first.featured_image
+  endif
+  comment
+    Shopify can't turn PNGs with transparency into JPEGs, so crawlers get the PNG itself: about 1.4 MB at
+    1200px, too heavy for WhatsApp previews. PNG/WebP photos are shared at 400px (under 250 KB); JPGs at 1200px.
+  endcomment
+  if og_image != blank
+    assign og_w = og_image.width | at_most: 1200
+    assign og_src = og_image.src | downcase
+    if og_src contains '.png' or og_src contains '.webp'
+      assign og_w = og_image.width | at_most: 400
+    endif
+    assign og_h = og_w | divided_by: og_image.aspect_ratio | round
+  endif
+-%}
+<meta property="og:site_name" content="{{ shop.name }}">
+<meta property="og:url" content="{{ canonical_url }}">
+<meta property="og:title" content="{{ og_title | escape_once }}">
+<meta property="og:type" content="{{ og_type }}">
+<meta property="og:description" content="{{ og_description }}">
+<meta property="og:locale" content="en_PK">
+{%- if og_image != blank %}
+<meta property="og:image" content="https:{{ og_image | image_url: width: og_w, format: 'pjpg' }}">
+<meta property="og:image:secure_url" content="https:{{ og_image | image_url: width: og_w, format: 'pjpg' }}">
+<meta property="og:image:width" content="{{ og_w }}">
+<meta property="og:image:height" content="{{ og_h }}">
+<meta property="og:image:alt" content="{{ og_image.alt | default: og_title | escape_once }}">
+{%- endif %}
+{%- if request.page_type == 'product' %}
+<meta property="og:price:amount" content="{{ product.price | divided_by: 100.0 }}">
+<meta property="og:price:currency" content="{{ cart.currency.iso_code }}">
+<meta property="product:price:amount" content="{{ product.price | divided_by: 100.0 }}">
+<meta property="product:price:currency" content="{{ cart.currency.iso_code }}">
+<meta property="product:availability" content="{% if product.available %}in stock{% else %}out of stock{% endif %}">
+<meta property="product:brand" content="{{ product.vendor | escape }}">
+{%- endif %}
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ og_title | escape_once }}">
+<meta name="twitter:description" content="{{ og_description }}">

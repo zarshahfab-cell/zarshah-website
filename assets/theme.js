@@ -1,10 +1,17 @@
 // ========== THEME TOGGLE ==========
+function syncThemeControls(isLight) {
+    var icon = document.getElementById('themeIcon');
+    if (icon) icon.textContent = isLight ? '☀️' : '🌙';
+    // the menu button's icon/label swap via CSS; this keeps the state readable by screen readers
+    var menuToggle = document.getElementById('mobileThemeToggle');
+    if (menuToggle) menuToggle.setAttribute('aria-pressed', isLight ? 'true' : 'false');
+}
+
 function toggleTheme() {
     var body = document.body;
-    var icon = document.getElementById('themeIcon');
     body.classList.toggle('light-mode');
     var isLight = body.classList.contains('light-mode');
-    if (icon) icon.textContent = isLight ? '☀️' : '🌙';
+    syncThemeControls(isLight);
     localStorage.setItem('zarshah-theme', isLight ? 'light' : 'dark');
 }
 
@@ -13,8 +20,7 @@ function toggleTheme() {
     var saved = localStorage.getItem('zarshah-theme');
     if (saved === 'light') {
         document.body.classList.add('light-mode');
-        var icon = document.getElementById('themeIcon');
-        if (icon) icon.textContent = '☀️';
+        syncThemeControls(true);
     }
 })();
 
@@ -25,43 +31,52 @@ setTimeout(function() {
 }, 3800);
 
 (function() {
-    // ========== 1. ANNOUNCEMENT BAR COUNTDOWN (persistent 24h from first visit) ==========
-    var ANN_KEY = 'zarshahSaleEndTime';
-    var ANN_DURATION_MS = 24 * 60 * 60 * 1000;
-    var endTime = parseInt(localStorage.getItem(ANN_KEY) || '0', 10);
-    if (!endTime || endTime < Date.now()) {
-        endTime = Date.now() + ANN_DURATION_MS;
-        localStorage.setItem(ANN_KEY, String(endTime));
-    }
-
+    // ========== 1. ANNOUNCEMENT BAR: SALE END ==========
+    // Counts down to the real end date set in the theme editor (Announcement Bar → "Sale ends",
+    // Pakistan time). It never restarts: more than a day out the bar shows the date, in the last
+    // 24 hours it counts down, and afterwards only the shipping message stays.
+    var DAY_MS = 24 * 60 * 60 * 1000;
+    var annBar = document.querySelector('.announcement-bar');
     var annHs = document.querySelectorAll('.ann-h');
     var annMs = document.querySelectorAll('.ann-m');
     var annSs = document.querySelectorAll('.ann-s');
+
+    function parseSaleEnd(value) {
+        // "YYYY-MM-DD HH:MM" in Pakistan time (UTC+5). Without a time, the sale runs to the end of that day.
+        var m = /^(\d{4})-(\d{1,2})-(\d{1,2})(?:[ T](\d{1,2}):(\d{2}))?$/.exec(String(value || '').trim());
+        if (!m) return 0;
+        var hour = m[4] ? +m[4] : 23, minute = m[4] ? +m[5] : 59, second = m[4] ? 0 : 59;
+        return Date.UTC(+m[1], +m[2] - 1, +m[3], hour - 5, minute, second);
+    }
+    var saleEnd = annBar ? parseSaleEnd(annBar.getAttribute('data-sale-end')) : 0;
 
     function setAll(nodes, value) {
         for (var i = 0; i < nodes.length; i++) nodes[i].textContent = value;
     }
 
+    function setSaleState(state) {
+        annBar.classList.toggle('is-no-sale', state === 'none');
+        annBar.classList.toggle('is-sale-date', state === 'date');
+    }
+
     function updateAnnCountdown() {
-        var remaining = endTime - Date.now();
-        if (remaining <= 0) {
-            // Auto-restart for the next 24h cycle
-            endTime = Date.now() + ANN_DURATION_MS;
-            localStorage.setItem(ANN_KEY, String(endTime));
-            remaining = ANN_DURATION_MS;
-        }
+        var remaining = saleEnd - Date.now();
+        if (!saleEnd || remaining <= 0) { setSaleState('none'); return false; }
+        if (remaining > DAY_MS) { setSaleState('date'); return true; }
+        setSaleState('countdown');
         var h = Math.floor(remaining / 3600000);
         var m = Math.floor((remaining % 3600000) / 60000);
         var s = Math.floor((remaining % 60000) / 1000);
-
         setAll(annHs, String(h).padStart(2, '0'));
         setAll(annMs, String(m).padStart(2, '0'));
         setAll(annSs, String(s).padStart(2, '0'));
+        return true;
     }
 
-    if (annHs.length) {
-        updateAnnCountdown();
-        setInterval(updateAnnCountdown, 1000);
+    if (annBar && updateAnnCountdown()) {
+        var annTimer = setInterval(function() {
+            if (!updateAnnCountdown()) clearInterval(annTimer);
+        }, 1000);
     }
 
     // ========== Hide announcement bar on scroll-down (all pages except homepage) ==========
@@ -335,26 +350,37 @@ document.addEventListener('DOMContentLoaded', function(){
     if (!popup || !pill) return;
 
     var closeBtn = document.getElementById('discountPopupClose');
+    var pillOpen = document.getElementById('discountPillOpen');
     var pillX    = document.getElementById('discountPillClose');
     var form     = document.getElementById('discountPopupForm');
 
-    // Delay matches: homepage splash (~3.8s) + a breath. On other pages it's still fine.
-    var AUTO_DELAY_MS = 4500;
+    // Wait out the splash (~3.8s) when it's showing; otherwise a short pause is enough.
+    var AUTO_DELAY_MS = document.getElementById('splashScreen') ? 4500 : 2500;
+    // After the visitor closes the popup (or the pill), don't auto-open it again for a week.
+    var SNOOZE_MS = 7 * 24 * 60 * 60 * 1000;
+    var KEY_SNOOZE = 'zarshahPopupSnoozedUntil';
+    var KEY_PILL_SNOOZE = 'zarshahPillSnoozedUntil';
+    var KEY_DONE = 'zarshahPopupSubmitted';
+
+    function getNum(key) { try { return parseInt(localStorage.getItem(key) || '0', 10) || 0; } catch (e) { return 0; } }
+    function setVal(key, val) { try { localStorage.setItem(key, String(val)); } catch (e) {} }
 
     function openPopup() {
         popup.classList.add('is-open');
         popup.setAttribute('aria-hidden', 'false');
         document.body.classList.add('discount-popup-open');
         pill.classList.remove('is-visible');
+        // Only move focus on mouse/trackpad devices — on phones it pops the keyboard over the offer.
         var first = popup.querySelector('input:not([type=hidden])');
-        if (first) setTimeout(function(){ first.focus(); }, 350);
+        if (first && window.matchMedia('(pointer: fine)').matches) setTimeout(function(){ first.focus(); }, 350);
     }
 
     function closePopup() {
         popup.classList.remove('is-open');
         popup.setAttribute('aria-hidden', 'true');
         document.body.classList.remove('discount-popup-open');
-        showPill();
+        setVal(KEY_SNOOZE, Date.now() + SNOOZE_MS);
+        if (getNum(KEY_PILL_SNOOZE) < Date.now()) showPill();
     }
 
     function showPill() {
@@ -367,23 +393,45 @@ document.addEventListener('DOMContentLoaded', function(){
         setTimeout(function(){ pill.hidden = true; }, 300);
     }
 
-    // Auto-open on every page load
-    setTimeout(openPopup, AUTO_DELAY_MS);
+    // The form posts and reloads the page; show the result (success or error) straight away.
+    var hasResult = popup.querySelector('.discount-popup-success, .discount-popup-error');
+    if (popup.querySelector('.discount-popup-success')) {
+        setVal(KEY_DONE, '1');
+        // Report the sign-up once (the success message also shows on a refresh).
+        if (getNum('zarshahLeadTracked') !== 1) {
+            setVal('zarshahLeadTracked', '1');
+            // Both sign-up forms are Shopify "customer" forms, so the popup also shows a footer sign-up's success.
+            var signupForm = window.location.hash === '#footerNewsletterForm' ? 'footer_newsletter' : 'discount_popup';
+            zarshahTrack('zarshah_popup_signup', { form: signupForm, page_path: window.location.pathname });
+        }
+    }
+
+    // "Copy" next to the code shown after sign-up (Theme settings → Discount Popup → discount code)
+    var copyBtn = popup.querySelector('.discount-popup-copy');
+    if (copyBtn) copyBtn.addEventListener('click', function(){
+        var code = copyBtn.getAttribute('data-code') || '';
+        var done = function(){ copyBtn.textContent = 'Copied'; copyBtn.classList.add('is-copied'); };
+        try {
+            navigator.clipboard.writeText(code).then(done, function(){});
+        } catch (e) {}
+    });
+
+    if (hasResult) {
+        openPopup();
+    } else if (getNum(KEY_DONE) !== 1 && getNum(KEY_SNOOZE) < Date.now()) {
+        setTimeout(openPopup, AUTO_DELAY_MS);
+    } else if (getNum(KEY_DONE) !== 1 && getNum(KEY_PILL_SNOOZE) < Date.now()) {
+        showPill();
+    }
+
+    if (form) form.addEventListener('submit', function(){ setVal(KEY_DONE, '1'); });
 
     // Wire up events
     closeBtn.addEventListener('click', closePopup);
-
-    pill.addEventListener('click', function(e){
-        if (e.target === pillX || pillX.contains(e.target)) return;
-        openPopup();
-    });
-
-    pillX.addEventListener('click', function(e){
-        e.stopPropagation();
+    if (pillOpen) pillOpen.addEventListener('click', openPopup);
+    pillX.addEventListener('click', function(){
+        setVal(KEY_PILL_SNOOZE, Date.now() + SNOOZE_MS);
         hidePill();
-    });
-    pillX.addEventListener('keydown', function(e){
-        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); hidePill(); }
     });
 
     // Close on backdrop click (not card)
@@ -396,4 +444,58 @@ document.addEventListener('DOMContentLoaded', function(){
         if (e.key === 'Escape' && popup.classList.contains('is-open')) closePopup();
     });
 
+})();
+
+// ========== ANALYTICS EVENTS (for Shopify Customer Events) ==========
+// Shopify's own pixels already report page views, product views, add-to-cart, checkout and purchases.
+// These are the store-specific actions they can't see. A custom pixel (Settings → Customer events)
+// subscribes to them and forwards them to GA4, Google Ads and Meta — see growth-plan/.
+function zarshahTrack(name, data) {
+    try {
+        if (window.Shopify && Shopify.analytics && typeof Shopify.analytics.publish === 'function') {
+            Shopify.analytics.publish(name, data || {});
+        }
+    } catch (e) {}
+}
+
+(function(){
+    function placeOf(el) {
+        if (el.closest('.whatsapp-float, .instagram-float, .facebook-float')) return 'floating_button';
+        if (el.closest('.mobile-menu')) return 'menu';
+        if (el.closest('.site-footer')) return 'footer';
+        if (el.closest('.contact-wrap')) return 'contact_page';
+        if (el.closest('.product-wrap')) return 'product_page';
+        return 'page';
+    }
+
+    // Capture phase, so the event is sent before the browser leaves for WhatsApp/Instagram.
+    document.addEventListener('click', function(e){
+        var link = e.target.closest ? e.target.closest('a[href]') : null;
+        if (!link) return;
+        var href = link.getAttribute('href') || '';
+        var data = { location: placeOf(link), page_path: window.location.pathname };
+        if (/(wa\.me|whatsapp\.com)\//i.test(href)) {
+            zarshahTrack('zarshah_whatsapp_click', data);
+        } else if (/instagram\.com/i.test(href)) {
+            data.network = 'instagram';
+            zarshahTrack('zarshah_social_click', data);
+        } else if (/facebook\.com|fb\.me/i.test(href)) {
+            data.network = 'facebook';
+            zarshahTrack('zarshah_social_click', data);
+        } else if (/^tel:/i.test(href)) {
+            zarshahTrack('zarshah_phone_click', data);
+        } else if (/^mailto:/i.test(href)) {
+            zarshahTrack('zarshah_email_click', data);
+        }
+    }, true);
+})();
+
+// Footer newsletter sign-up on pages without the popup (on the homepage the popup reports it)
+(function(){
+    if (!document.querySelector('.footer-newsletter-msg--success') || document.getElementById('discountPopup')) return;
+    try {
+        if (localStorage.getItem('zarshahLeadTracked') === '1') return;
+        localStorage.setItem('zarshahLeadTracked', '1');
+    } catch (e) {}
+    zarshahTrack('zarshah_popup_signup', { form: 'footer_newsletter', page_path: window.location.pathname });
 })();

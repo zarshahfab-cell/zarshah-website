@@ -1,0 +1,44 @@
+{%- comment -%}
+    /collections — list of collections. "All Products" first, then every collection except the
+    hidden homepage one. (Without this template Shopify fell back to an unstyled page.)
+{%- endcomment -%}
+<section class="collection-section">
+    <div class="collection-layout">
+        <div class="collection-intro">
+            <h1>Collections</h1>
+            <p><strong>Browse</strong> &mdash; Premium unstitched fabrics, crafted for the modern Pakistani man.</p>
+            <a href="{{ routes.root_url }}" class="collection-cta">&larr; Back to Home</a>
+        </div>
+
+        <div class="collection-grid">
+            {%- assign all_cover = collections.all.products.first.featured_image -%}
+            <a href="{{ routes.all_products_collection_url }}" class="pc-card">
+                <div class="pc-card-img">
+                    {%- if all_cover -%}
+                        <img src="{{ all_cover | image_url: width: 600 }}" alt="All products" loading="lazy" width="{{ all_cover.width }}" height="{{ all_cover.height }}">
+                    {%- endif -%}
+                </div>
+                <div class="pc-info">
+                    <div class="pc-name">All Products</div>
+                    <div class="pc-price"><span class="pc-price-new">{{ collections.all.products_count }} fabrics</span></div>
+                </div>
+            </a>
+
+            {%- for collection in collections -%}
+                {%- if collection.handle == 'frontpage' or collection.handle == 'all' or collection.products_count == 0 -%}{%- continue -%}{%- endif -%}
+                {%- assign cover = collection.image | default: collection.products.first.featured_image -%}
+                <a href="{{ collection.url }}" class="pc-card">
+                    <div class="pc-card-img">
+                        {%- if cover -%}
+                            <img src="{{ cover | image_url: width: 600 }}" alt="{{ collection.title | escape }}" loading="lazy" width="{{ cover.width }}" height="{{ cover.height }}">
+                        {%- endif -%}
+                    </div>
+                    <div class="pc-info">
+                        <div class="pc-name">{{ collection.title }}</div>
+                        <div class="pc-price"><span class="pc-price-new">{{ collection.products_count }} fabrics</span></div>
+                    </div>
+                </a>
+            {%- endfor -%}
+        </div>
+    </div>
+</section>

@@ -47,5 +47,90 @@
         "label": "Facebook URL"
       }
     ]
+  },
+  {
+    "name": "SEO & sharing",
+    "settings": [
+      {
+        "type": "paragraph",
+        "content": "Used for Google results, WhatsApp and Facebook link previews, and the product details Google reads from each page."
+      },
+      {
+        "type": "header",
+        "content": "Homepage"
+      },
+      {
+        "type": "text",
+        "id": "seo_home_title",
+        "label": "Homepage title (fallback)",
+        "info": "Used when Online Store → Preferences has no homepage title. Aim for 50–60 characters.",
+        "default": "Zarshah | Premium Men's Unstitched Fabric in Pakistan"
+      },
+      {
+        "type": "textarea",
+        "id": "seo_home_description",
+        "label": "Homepage meta description (fallback)",
+        "info": "Used when Online Store → Preferences has no homepage meta description. Aim for 140–160 characters.",
+        "default": "Premium wash & wear unstitched fabric for men, 4.5 m per suit. Cash on delivery and free shipping across Pakistan on orders over Rs 3,000."
+      },
+      {
+        "type": "image_picker",
+        "id": "share_image",
+        "label": "Default link-preview image",
+        "info": "Shown when a page without its own image is shared on WhatsApp or Facebook. 1200 × 630 px works best."
+      },
+      {
+        "type": "text",
+        "id": "business_city",
+        "label": "Business city",
+        "default": "Lahore"
+      },
+      {
+        "type": "header",
+        "content": "Shipping and returns (for Google)"
+      },
+      {
+        "type": "paragraph",
+        "content": "Only fill in what your store actually promises. Delivery times are published once all three are filled in. The return policy is published once a Refund policy exists in Settings → Policies."
+      },
+      {
+        "type": "number",
+        "id": "free_shipping_threshold",
+        "label": "Free shipping from (Rs)",
+        "default": 3000
+      },
+      {
+        "type": "number",
+        "id": "handling_days",
+        "label": "Order processing time (maximum days)"
+      },
+      {
+        "type": "number",
+        "id": "delivery_days_min",
+        "label": "Delivery time (minimum days)"
+      },
+      {
+        "type": "number",
+        "id": "delivery_days_max",
+        "label": "Delivery time (maximum days)"
+      },
+      {
+        "type": "number",
+        "id": "return_days",
+        "label": "Return window (days)",
+        "default": 7
+      },
+      {
+        "type": "select",
+        "id": "return_fees",
+        "label": "Return shipping",
+        "options": [
+          { "value": "unstated", "label": "Not stated" },
+          { "value": "free", "label": "Free returns" },
+          { "value": "customer", "label": "Customer pays" }
+        ],
+        "default": "unstated"
+      }
+    ]
   }
 ]

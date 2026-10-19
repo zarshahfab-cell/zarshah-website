@@ -9,23 +9,65 @@
     <meta name="theme-color" content="#0D1B2A">
     <link rel="canonical" href="{{ canonical_url }}">
 
-    <title>
-        {%- if page_title == shop.name -%}
-            {{ shop.name }}{%- if shop.description != blank %} &mdash; {{ shop.description | escape }}{%- endif -%}
-        {%- else -%}
-            {{ page_title }} | {{ shop.name }}
-        {%- endif -%}
-    </title>
+    {%- comment -%}
+        The shop name is added only when the SEO title doesn't already contain it (product SEO titles end in
+        "— Zarshah"). The homepage falls back to Theme settings → SEO & sharing when Online Store → Preferences
+        has no homepage title or meta description.
+    {%- endcomment -%}
+    {%- liquid
+        assign base_title = page_title | strip
+        if request.page_type == 'index' and base_title == shop.name and settings.seo_home_title != blank
+            assign seo_title = settings.seo_home_title | strip
+        elsif base_title == shop.name
+            assign seo_title = shop.name
+            if shop.description != blank
+                assign seo_title = seo_title | append: ' — ' | append: shop.description
+            endif
+        else
+            assign seo_title = base_title
+            if current_tags
+                assign tag_list = current_tags | join: ', '
+                assign seo_title = seo_title | append: ' – tagged "' | append: tag_list | append: '"'
+            endif
+            if current_page != 1
+                assign seo_title = seo_title | append: ' – Page ' | append: current_page
+            endif
+            unless base_title contains shop.name
+                assign seo_title = seo_title | append: ' | ' | append: shop.name
+            endunless
+        endif
+    -%}
+    <title>{{ seo_title | strip_newlines | escape_once }}</title>
 
-    {%- if page_description -%}
-    <meta name="description" content="{{ page_description | escape }}">
-    {%- endif -%}
+    {%- if request.page_type == 'search' or request.page_type == 'cart' %}
+    <meta name="robots" content="noindex, follow">
+    {%- endif %}
 
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ 'top-web-image.png' | asset_url }}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{{ 'top-web-image.png' | asset_url }}">
-    <link rel="shortcut icon" href="{{ 'top-web-image.png' | asset_url }}">
+    {%- liquid
+        assign meta_description = page_description
+        if meta_description == blank and request.page_type == 'index'
+            assign meta_description = settings.seo_home_description
+        endif
+    -%}
+    {%- if meta_description != blank %}
+    <meta name="description" content="{{ meta_description | strip_html | strip_newlines | escape_once }}">
+    {%- endif %}
 
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&family=Bebas+Neue&family=Noto+Nastaliq+Urdu:wght@400;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    {%- comment -%} Before content_for_header, so WhatsApp and Facebook pick up this page's tags first {%- endcomment -%}
+    {%- render 'meta-tags' -%}
+    {%- render 'structured-data' -%}
+
+    {%- comment -%} Right-sized icons (the 1656px logo was downloaded three times as the favicon) {%- endcomment -%}
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ 'favicon-32.png' | asset_url }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ 'apple-touch-icon-180.png' | asset_url }}">
+
+    {%- comment -%}
+        Urdu (Noto Nastaliq Urdu) is loaded by the hero section with only the letters of its headline
+        (234KB → a few KB). Bebas Neue and Amiri weren't used by any element.
+    {%- endcomment -%}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 
     {{ 'theme.css' | asset_url | stylesheet_tag }}
 
@@ -35,11 +77,21 @@
 </head>
 <body>
 
-<!-- Splash Screen (shows on every homepage load) -->
+<!-- Splash Screen (first homepage view of each browser session only) -->
 {% if template == 'index' %}
 <div class="splash-screen" id="splashScreen">
-    <img src="{{ 'newlogo.png' | asset_url }}" alt="{{ shop.name }}" class="splash-logo">
+    <img src="{{ 'splash-logo-840h.webp' | asset_url }}" alt="{{ shop.name }}" class="splash-logo" width="906" height="840">
 </div>
+<script>
+    /* Runs before first paint: skip the 3.8s splash on repeat homepage views in the same session. */
+    try {
+        if (sessionStorage.getItem('zarshahSplashSeen')) {
+            document.getElementById('splashScreen').remove();
+        } else {
+            sessionStorage.setItem('zarshahSplashSeen', '1');
+        }
+    } catch (e) {}
+</script>
 {% endif %}
 
 <!-- Theme Toggle -->

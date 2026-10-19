@@ -1,11 +1,17 @@
-<div id="shopContent" style="display: none;">
+<div id="shopContent">
 
 <section class="collection-section">
     <div class="collection-layout">
         <!-- Left: Intro -->
         <div class="collection-intro">
             <h2>{{ section.settings.heading | default: 'Premium Collection' }}</h2>
-            <p>{{ section.settings.description | default: '<strong>Year End Sale</strong> — Embrace the supreme feel of our most comfortable premium fabric, crafted for the modern Pakistani man.' }}</p>
+            {%- assign intro_text = section.settings.description | default: '<strong>Year End Sale</strong> — Embrace the supreme feel of our most comfortable premium fabric, crafted for the modern Pakistani man.' -%}
+            {%- comment -%} richtext settings already include <p> tags; only wrap plain text {%- endcomment -%}
+            {%- if intro_text contains '<p' -%}
+                {{ intro_text }}
+            {%- else -%}
+                <p>{{ intro_text }}</p>
+            {%- endif -%}
             <a href="{{ section.settings.cta_link | default: '/collections/all' }}" class="collection-cta">{{ section.settings.cta_label | default: 'Shop Collection' }}</a>
         </div>
 

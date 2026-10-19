@@ -8,7 +8,7 @@
 <nav class="breadcrumb">
     <a href="{{ routes.root_url }}">Home</a>
     <span class="sep">/</span>
-    <a href="/collections/all">Collection</a>
+    <a href="{{ routes.all_products_collection_url }}">Collection</a>
     <span class="sep">/</span>
     <span class="current">{{ product.title }}</span>
 </nav>
@@ -21,12 +21,16 @@
                 {%- if product.images.size > 0 -%}
                     {%- for image in product.images -%}
                         <div class="product-slide" data-index="{{ forloop.index0 }}">
-                            <img src="{{ image | image_url: width: 1000 }}" alt="{{ image.alt | default: product.title | escape }}" loading="{% if forloop.first %}eager{% else %}lazy{% endif %}">
+                            <img src="{{ image | image_url: width: 1000 }}"
+                                 srcset="{{ image | image_url: width: 600 }} 600w, {{ image | image_url: width: 800 }} 800w, {{ image | image_url: width: 1000 }} 1000w"
+                                 sizes="(max-width: 900px) min(calc(100vw - 32px), 560px), 50vw"
+                                 width="{{ image.width }}" height="{{ image.height }}"
+                                 alt="{{ image.alt | default: product.title | escape }}" loading="{% if forloop.first %}eager{% else %}lazy{% endif %}">
                         </div>
                     {%- endfor -%}
                 {%- else -%}
                     <div class="product-slide" data-index="0">
-                        <img src="https://placehold.co/800x880/1B2838/F0E6D3?text={{ product.title | url_encode }}" alt="{{ product.title | escape }}">
+                        <img src="https://placehold.co/800x880/1B2838/F0E6D3?text={{ product.title | url_encode }}" alt="{{ product.title | escape }}" width="800" height="880">
                     </div>
                 {%- endif -%}
 
@@ -51,7 +55,7 @@
             <div class="product-thumbs" role="list">
                 {%- for image in product.images -%}
                 <button type="button" class="product-thumb {% if forloop.first %}active{% endif %}" data-slide="{{ forloop.index0 }}" aria-label="View image {{ forloop.index }}">
-                    <img src="{{ image | image_url: width: 200 }}" alt="{{ image.alt | default: product.title | escape }}" loading="lazy">
+                    <img src="{{ image | image_url: width: 200 }}" alt="{{ image.alt | default: product.title | escape }}" loading="lazy" width="{{ image.width }}" height="{{ image.height }}">
                 </button>
                 {%- endfor -%}
             </div>
@@ -98,7 +102,7 @@
                 </div>
             </div>
 
-            <p class="product-tax-note">Tax included. Shipping calculated at checkout.</p>
+            <p class="product-tax-note">Tax included. Free shipping on orders over Rs 3,000.</p>
 
             <form action="{{ routes.cart_add_url }}" method="post" enctype="multipart/form-data" id="productForm">
                 <input type="hidden" name="id" id="variantId" value="{{ current_variant.id }}">
@@ -153,7 +157,8 @@
 
     {%- comment -%} Build a related-products list from the product's first collection (or fallback) {%- endcomment -%}
     {%- assign current_collection = product.collections.first -%}
-    {%- if current_collection == blank -%}
+    {%- comment -%} "Home page" holds only one product, which left Urban Twill with an empty list {%- endcomment -%}
+    {%- if current_collection == blank or current_collection.products_count < 3 -%}
         {%- assign current_collection = collections.all -%}
     {%- endif -%}
 
@@ -188,7 +193,7 @@
             <div class="fbt-card fbt-card--current">
                 <div class="fbt-card-img">
                     {%- if product.featured_image -%}
-                        <img src="{{ product.featured_image | image_url: width: 300 }}" alt="{{ product.title | escape }}" loading="lazy">
+                        <img src="{{ product.featured_image | image_url: width: 300 }}" alt="{{ product.title | escape }}" loading="lazy" width="{{ product.featured_image.width }}" height="{{ product.featured_image.height }}">
                     {%- endif -%}
                 </div>
                 <div class="fbt-card-info">
@@ -201,15 +206,17 @@
             {%- assign fbt_total_cents = product.price -%}
             {%- assign fbt_variant_ids = product.selected_or_first_available_variant.id | append: ',' -%}
 
+            {%- assign fbt_shown = 0 -%}
             {%- for p in current_collection.products -%}
-                {%- if p.id != product.id and forloop.index <= 3 -%}
+                {%- if p.id != product.id and fbt_shown < fbt_count -%}
+                    {%- assign fbt_shown = fbt_shown | plus: 1 -%}
                     {%- assign fbt_total_cents = fbt_total_cents | plus: p.price -%}
                     {%- assign fbt_variant_ids = fbt_variant_ids | append: p.selected_or_first_available_variant.id | append: ',' -%}
                     <span class="fbt-plus" aria-hidden="true">+</span>
                     <a href="{{ p.url }}" class="fbt-card">
                         <div class="fbt-card-img">
                             {%- if p.featured_image -%}
-                                <img src="{{ p.featured_image | image_url: width: 300 }}" alt="{{ p.title | escape }}" loading="lazy">
+                                <img src="{{ p.featured_image | image_url: width: 300 }}" alt="{{ p.title | escape }}" loading="lazy" width="{{ p.featured_image.width }}" height="{{ p.featured_image.height }}">
                             {%- endif -%}
                         </div>
                         <div class="fbt-card-info">
@@ -226,7 +233,8 @@
                 <span class="fbt-total-label">Bundle total:</span>
                 <span class="fbt-total-price">{{ fbt_total_cents | money }}</span>
             </div>
-            <button type="button" class="fbt-cta" id="fbtAddBundle" data-variants="{{ fbt_variant_ids | rstrip: ',' }}">
+            {%- comment -%} rstrip takes no argument in Shopify Liquid (it rendered a Liquid error here); the script ignores the trailing comma {%- endcomment -%}
+            <button type="button" class="fbt-cta" id="fbtAddBundle" data-variants="{{ fbt_variant_ids }}">
                 Add bundle to cart
             </button>
         </div>
@@ -335,14 +343,33 @@ function updateStockUrgency(variant) {
     document.getElementById('stockUrgencyFill').style.width = pct + '%';
 }
 
+function currentVariantPrice() {
+    var id = parseInt(document.getElementById('variantId').value, 10);
+    var v = PRODUCT_VARIANTS.find(function(x){ return x.id === id; }) || PRODUCT_VARIANTS[0];
+    return v ? v.price / 100 : 0;
+}
+
 function handleBuyNow() {
     var form = document.getElementById('productForm');
     var btn = form.querySelector('.btn-cart');
     var formData = new FormData(form);
+    if (window.zarshahTrack) {
+        var qty = parseInt(formData.get('quantity') || '1', 10) || 1;
+        var unit = currentVariantPrice();
+        zarshahTrack('zarshah_buy_now', {
+            product_id: {{ product.id | json }},
+            variant_id: parseInt(formData.get('id'), 10),
+            product_title: {{ product.title | json }},
+            quantity: qty,
+            price: unit,
+            value: unit * qty,
+            currency: {{ cart.currency.iso_code | json }}
+        });
+    }
     fetch(window.routes.cart_add_url, { method: 'POST', body: formData, headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/javascript' } })
-        .then(function(r){ return r.json(); })
+        .then(function(r){ if (!r.ok) throw new Error('add failed'); return r.json(); })
         .then(function(){ window.location.href = '/checkout'; })
-        .catch(function(){ form.submit(); });
+        .catch(function(){ form.submit(); });   // normal form post shows Shopify's own message (e.g. sold out)
 }
 
 // ========== FREQUENTLY BOUGHT TOGETHER — Add bundle to cart ==========
@@ -360,8 +387,10 @@ function handleBuyNow() {
             headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
             body: JSON.stringify({ items: items })
         })
-        .then(function(r){ return r.json(); })
+        // only report success when Shopify actually added the items
+        .then(function(r){ if (!r.ok) throw new Error('add failed'); return r.json(); })
         .then(function(){
+            if (window.zarshahTrack) zarshahTrack('zarshah_bundle_add', { variant_ids: ids, items: ids.length, page_path: window.location.pathname });
             btn.textContent = 'Added! View cart →';
             btn.classList.add('fbt-cta--success');
             setTimeout(function(){ window.location.href = '/cart'; }, 700);
@@ -403,10 +432,13 @@ function handleBuyNow() {
         thumbs.forEach(function(t, ti){ t.classList.toggle('active', ti === i); });
         if (counter) counter.textContent = (i + 1) + ' / ' + total;
 
-        // Scroll active thumb into view
+        // Bring the active thumb into view by scrolling only the thumbnail strip sideways.
+        // (scrollIntoView also scrolled the whole page, so on phones the page jumped down on load.)
         var activeThumb = thumbs[i];
-        if (activeThumb && activeThumb.scrollIntoView) {
-            activeThumb.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+        var strip = activeThumb && activeThumb.parentElement;
+        if (strip && strip.scrollWidth > strip.clientWidth) {
+            var offset = activeThumb.getBoundingClientRect().left - strip.getBoundingClientRect().left;
+            strip.scrollBy({ left: offset - (strip.clientWidth - activeThumb.offsetWidth) / 2, behavior: 'smooth' });
         }
     }
 
@@ -554,8 +586,8 @@ function handleBuyNow() {
     render();
 })();
 </script>
-<!-- Start of Judge.me code -->
-
-<div style='{{ jm_style }}' class='jdgm-widget
-
-jdgm-preview-badge' data-id='{{ product.id }}...
+{%- comment -%}
+    Judge.me auto-inserted a truncated preview-badge snippet here (unclosed data-id='...' attribute).
+    It swallowed the footer markup on every product page and threw a JS error, so it was removed.
+    Re-add the complete Judge.me markup once the app is provisioned.
+{%- endcomment -%}

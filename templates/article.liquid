@@ -1,0 +1,47 @@
+{%- comment -%}
+    A single guide / blog post. The theme had no article template, so posts could not be published.
+    Ends with a shop + WhatsApp prompt, because every guide should lead to a fabric.
+{%- endcomment -%}
+<nav class="breadcrumb" aria-label="Breadcrumb">
+    <a href="{{ routes.root_url }}">Home</a>
+    <span class="sep">/</span>
+    <a href="{{ blog.url }}">{{ blog.title }}</a>
+    <span class="sep">/</span>
+    <span class="current">{{ article.title }}</span>
+</nav>
+
+<section class="article-section">
+    <article class="article-wrap">
+        <header class="article-header">
+            <h1 class="article-title">{{ article.title }}</h1>
+            <p class="article-meta">
+                <time datetime="{{ article.published_at | date: '%Y-%m-%d' }}">{{ article.published_at | date: '%-d %B %Y' }}</time>
+                {%- if article.author != blank %} &middot; {{ article.author }}{% endif -%}
+            </p>
+        </header>
+
+        {%- if article.image -%}
+            <figure class="article-image">
+                <img src="{{ article.image | image_url: width: 1200 }}"
+                     srcset="{{ article.image | image_url: width: 600 }} 600w, {{ article.image | image_url: width: 900 }} 900w, {{ article.image | image_url: width: 1200 }} 1200w"
+                     sizes="(max-width: 800px) calc(100vw - 32px), 760px"
+                     alt="{{ article.image.alt | default: article.title | escape }}"
+                     width="{{ article.image.width }}" height="{{ article.image.height }}" fetchpriority="high">
+            </figure>
+        {%- endif -%}
+
+        <div class="article-content">
+            {{ article.content }}
+        </div>
+
+        <aside class="article-cta" aria-label="Shop Zarshah">
+            <p class="article-cta-title">Ready to choose your fabric?</p>
+            <p>Every Zarshah suit is 4.5 m of premium wash &amp; wear, with cash on delivery across Pakistan.</p>
+            <a href="{{ routes.all_products_collection_url }}" class="collection-cta">Shop all fabrics &rarr;</a>
+            {%- capture wa_text -%}Assalam o Alaikum! I read your guide "{{ article.title }}" and have a question.{%- endcapture -%}
+            <a href="https://wa.me/{{ settings.whatsapp_number | default: '923113638999' }}?text={{ wa_text | url_encode }}" class="article-cta-wa" target="_blank" rel="noopener">Ask us on WhatsApp</a>
+        </aside>
+
+        <p class="article-back"><a href="{{ blog.url }}">&larr; All guides</a></p>
+    </article>
+</section>

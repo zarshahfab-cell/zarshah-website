@@ -1,6 +1,12 @@
+{%- assign urdu_line = section.settings.tagline_urdu | default: 'ہر تار ایک کہانی ہے' -%}
+{%- comment -%} Urdu font with only the letters this headline uses (follows the theme-editor text automatically) {%- endcomment -%}
+<link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;700&text={{ urdu_line | url_encode }}&display=swap" rel="stylesheet">
 <section class="hero">
     <div class="hero-bg">
-        <img src="{{ 'bg-texture.png' | asset_url }}" alt="Fabric Texture">
+        {%- comment -%} decorative background — right-sized copies of bg-texture.png (was 3MB) {%- endcomment -%}
+        <img src="{{ 'hero-texture-1600w.webp' | asset_url }}"
+             srcset="{{ 'hero-texture-800w.webp' | asset_url }} 800w, {{ 'hero-texture-1600w.webp' | asset_url }} 1536w"
+             sizes="100vw" alt="" width="1536" height="1024" fetchpriority="high">
     </div>
     <div class="hero-overlay"></div>
     <div class="hero-content" style="flex-direction: column; align-items: center; text-align: center; gap: 0;">
