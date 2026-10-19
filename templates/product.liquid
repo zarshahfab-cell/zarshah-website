@@ -241,7 +241,12 @@
     </section>
     {%- endif -%}
 
-    {%- comment -%} =============== CUSTOMER REVIEWS (localStorage fallback) =============== {%- endcomment -%}
+    {%- comment -%}
+        =============== CUSTOMER REVIEWS (localStorage fallback) ===============
+        Off by default (Theme settings → Product page): reviews typed here are saved only in the
+        writer's own browser, so no other shopper ever sees them. Use Judge.me's widget instead.
+    {%- endcomment -%}
+    {%- if settings.show_browser_reviews -%}
     <section class="product-reviews" aria-labelledby="reviewsTitle">
         <h2 class="product-extras-title" id="reviewsTitle">Customer Reviews</h2>
 
@@ -286,6 +291,7 @@
             <p class="review-success" id="reviewSuccess">Thank you! Your review has been added.</p>
         </form>
     </section>
+    {%- endif -%}
 </div>
 
 <script>

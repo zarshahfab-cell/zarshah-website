@@ -49,6 +49,18 @@
     ]
   },
   {
+    "name": "Product page",
+    "settings": [
+      {
+        "type": "checkbox",
+        "id": "show_browser_reviews",
+        "label": "Show the on-page \"Customer Reviews\" box",
+        "info": "Reviews typed into this box are saved only in the writer's own browser, so no other shopper ever sees them. Keep it off and use Judge.me's review widget instead.",
+        "default": false
+      }
+    ]
+  },
+  {
     "name": "SEO & sharing",
     "settings": [
       {
