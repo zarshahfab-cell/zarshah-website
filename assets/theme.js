@@ -28,7 +28,7 @@ function toggleTheme() {
 setTimeout(function() {
     var splash = document.getElementById('splashScreen');
     if (splash) splash.remove();
-}, 3800);
+}, 1400);
 
 (function() {
     // ========== 1. ANNOUNCEMENT BAR: SALE END ==========
@@ -354,8 +354,9 @@ document.addEventListener('DOMContentLoaded', function(){
     var pillX    = document.getElementById('discountPillClose');
     var form     = document.getElementById('discountPopupForm');
 
-    // Wait out the splash (~3.8s) when it's showing; otherwise a short pause is enough.
-    var AUTO_DELAY_MS = document.getElementById('splashScreen') ? 4500 : 2500;
+    // Open only once the visitor shows interest: after scrolling a little over half a screen, or after 20 s.
+    var AUTO_OPEN_AFTER_MS = 20000;
+    var AUTO_OPEN_SCROLL = 0.6;   // share of one screen height
     // After the visitor closes the popup (or the pill), don't auto-open it again for a week.
     var SNOOZE_MS = 7 * 24 * 60 * 60 * 1000;
     var KEY_SNOOZE = 'zarshahPopupSnoozedUntil';
@@ -419,10 +420,24 @@ document.addEventListener('DOMContentLoaded', function(){
     if (hasResult) {
         openPopup();
     } else if (getNum(KEY_DONE) !== 1 && getNum(KEY_SNOOZE) < Date.now()) {
-        setTimeout(openPopup, AUTO_DELAY_MS);
+        var autoTimer = setTimeout(autoOpen, AUTO_OPEN_AFTER_MS);
+        var onAutoScroll = function() {
+            if (window.scrollY > window.innerHeight * AUTO_OPEN_SCROLL) autoOpen();
+        };
+        function autoOpen() {
+            clearTimeout(autoTimer);
+            window.removeEventListener('scroll', onAutoScroll);
+            if (!popup.classList.contains('is-open')) openPopup();
+        }
+        window.addEventListener('scroll', onAutoScroll, { passive: true });
     } else if (getNum(KEY_DONE) !== 1 && getNum(KEY_PILL_SNOOZE) < Date.now()) {
         showPill();
     }
+
+    // Keep the corner pill off the first screen: it shows once the visitor has scrolled a little.
+    function syncAtTop() { document.body.classList.toggle('zs-at-top', window.scrollY < 120); }
+    syncAtTop();
+    window.addEventListener('scroll', syncAtTop, { passive: true });
 
     if (form) form.addEventListener('submit', function(){ setVal(KEY_DONE, '1'); });
 
