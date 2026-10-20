@@ -75,19 +75,20 @@
 
     {{ content_for_header }}
 </head>
-<body>
+<body class="template-{{ template.name }}">
 
-<!-- Splash Screen (first homepage view of each browser session only) -->
+<!-- Splash Screen (about 1.3 s, on a device's first homepage visit only) -->
 {% if template == 'index' %}
 <div class="splash-screen" id="splashScreen">
     <img src="{{ 'splash-logo-840h.webp' | asset_url }}" alt="{{ shop.name }}" class="splash-logo" width="906" height="840">
 </div>
 <script>
-    /* Runs before first paint: skip the 3.8s splash on repeat homepage views in the same session. */
+    /* Runs before first paint: show the splash once per device (it used to return every session). */
     try {
-        if (sessionStorage.getItem('zarshahSplashSeen')) {
+        if (localStorage.getItem('zarshahSplashSeen') || sessionStorage.getItem('zarshahSplashSeen')) {
             document.getElementById('splashScreen').remove();
         } else {
+            localStorage.setItem('zarshahSplashSeen', '1');
             sessionStorage.setItem('zarshahSplashSeen', '1');
         }
     } catch (e) {}

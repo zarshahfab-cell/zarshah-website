@@ -8891,3 +8891,65 @@ body.light-mode .article-cta { background: #FFFFFF; border-color: rgba(0, 0, 0, 
 body.light-mode .article-content a,
 body.light-mode .article-cta-wa,
 body.light-mode .article-back a { color: #7A5C12; }
+
+/* ===== FOLLOW-UP FIXES FROM THE LIVE VERIFICATION (19 Oct 2026) ===== */
+/* Splash: about 1.3 s instead of 3.6 s, and only on a device's first visit (see layout/theme.liquid) */
+.splash-screen { animation: splashFadeOut 0.4s ease-in 0.9s forwards; }
+.splash-logo { animation: splashFadeIn 0.5s ease-out 0s both, splashGlow 2s ease-in-out 0.5s infinite; }
+
+/* Urdu headline: the glitch plays once on load instead of cutting the words up every 3 s */
+.hero-title { animation-iteration-count: 1, 1 !important; }
+.hero-title::before,
+.hero-title::after { animation-iteration-count: 1 !important; }
+@media (prefers-reduced-motion: reduce) {
+    .hero-title,
+    .hero-title::before,
+    .hero-title::after { animation: none !important; }
+}
+
+/* Popup: no text under 12px */
+.discount-popup-fine { font-size: 0.75rem; }
+.discount-popup-field input:focus + label,
+.discount-popup-field input:not(:placeholder-shown) + label { font-size: 0.75rem; }
+
+/* Popup on short phones: compact, so it leaves most of the screen visible */
+@media (max-width: 480px) and (max-height: 700px) {
+    .discount-popup { padding: 20px 16px 14px; }
+    .discount-popup-title { font-size: 1.1rem; margin-bottom: 4px; }
+    .discount-popup-subtitle { display: none; }
+    .discount-popup-form { gap: 8px; margin-bottom: 8px; }
+    .discount-popup-field input { padding: 13px 12px 8px; }
+    .discount-popup-submit { min-height: 46px; padding-top: 11px; padding-bottom: 11px; }
+    .discount-popup-fine { margin-top: 6px; line-height: 1.4; }
+}
+
+/* Cart and Contact: compact top spacing on landscape phones too (it left a 132–152px empty band) */
+@media (orientation: landscape) and (max-height: 500px) {
+    .page-wrap { padding-top: 8px; }
+    .contact-wrap { padding-top: 16px !important; }
+}
+
+/* Popup fields: at least 44px tall in every layout (the short-landscape layout made them 43px) */
+.discount-popup-field input { min-height: 44px; }
+
+/* Floating buttons stay off the first screen's buttons */
+@media (max-width: 1024px) {
+    .template-cart .whatsapp-float { display: none !important; }
+}
+/* On the cart page the light/dark button moves to the top right, clear of REMOVE and CHECKOUT
+   (at 768px and below the switch is in the menu instead). The heading box hugs its text so the
+   button sits beside it, not on it. */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .template-cart .theme-toggle { display: inline-flex !important; top: 120px; bottom: auto; right: 16px; }
+    .template-cart .page-title { width: fit-content; margin-left: auto; margin-right: auto; }
+}
+@media (min-width: 769px) and (max-width: 1024px) and (orientation: landscape) and (max-height: 500px) {
+    .template-cart .theme-toggle { top: 88px; }
+}
+body.zs-at-top .discount-pill { opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
+/* Hero: the drifting dot layers move up to 15px sideways and made the page 2–4px wider than the
+   screen at moments. Clip sideways only; the tall Urdu headline can still overflow vertically. */
+.hero { overflow-x: clip !important; overflow-y: visible !important; }
+@media (min-width: 1025px) {
+    .product-actions { padding-right: 76px; }
+}
