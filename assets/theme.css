@@ -8947,6 +8947,9 @@ body.light-mode .article-back a { color: #7A5C12; }
     .template-cart .theme-toggle { top: 88px; }
 }
 body.zs-at-top .discount-pill { opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
+/* Hero: the drifting dot layers move up to 15px sideways and made the page 2–4px wider than the
+   screen at moments. Clip sideways only; the tall Urdu headline can still overflow vertically. */
+.hero { overflow-x: clip !important; overflow-y: visible !important; }
 @media (min-width: 1025px) {
     .product-actions { padding-right: 76px; }
 }
