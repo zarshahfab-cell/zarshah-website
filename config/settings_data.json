@@ -14,6 +14,11 @@
     "email": "hello@zarshah.pk",
     "instagram_url": "https://www.instagram.com/zarshahofficial",
     "facebook_url": "https://www.facebook.com/profile.php?id=61574692373262",
+    "handling_days": 2,
+    "delivery_days_min": 2,
+    "delivery_days_max": 2,
+    "return_days": 7,
+    "return_fees": "customer",
     "sections": {
       "navbar": {
         "type": "navbar",
